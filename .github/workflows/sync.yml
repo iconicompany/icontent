@@ -75,17 +75,14 @@ jobs:
             fi
           done
 
-      - name: Commit and Push Translations
+      - name: Commit and Push Translations and Database
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add content/en/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate updated content to English" && git push)
-
-      - name: Trigger Landing Page Sync
-        run: |
-          curl --fail --show-error -X POST https://iconicompany.com/nextapi/sync \
-            -H "Authorization: Bearer ${{ secrets.SYNC_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"url\": \"https://api.github.com/repos/${{ github.repository }}/contents/content/{lang}/blog?ref=${{ github.ref_name }}\"}"
+          
+          # Run local sync to update content.db
+          bun run sync
+          
+          git add content/en/ db/content.db
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate content and update database" && git push)
 
