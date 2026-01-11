@@ -88,9 +88,9 @@ jobs:
           git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate content and update database" && git push)
 
       - name: Trigger Content DB Sync
-        if: ${{ vars.SITE_URL }}
+        if: ${{ vars.SYNC_URL }}
         run: |
-          curl --fail --show-error -X PUT "${{ vars.SITE_URL }}" \
+          curl --fail --show-error -X PUT "${{ vars.SYNC_URL }}" \
             -H "Authorization: Bearer ${{ secrets.SYNC_TOKEN }}" \
             -H "Content-Type: application/octet-stream" \
             --data-binary "@db/content.db"
