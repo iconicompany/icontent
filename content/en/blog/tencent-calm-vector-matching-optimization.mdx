@@ -1,0 +1,67 @@
+---
+title: 'From Cosine Similarity to the "Energy" of Meanings: How Tencent CALM Research is Changing the Game in AI Matching'
+date: '2025-01-25'
+description: 'This article analyzes the research from Tencent's laboratory – the CALM (Continuous Autoregressive Language Models) architecture – and its potential to transform HR tech processes. We examine the limitations of traditional cosine similarity in skill matching and propose alternative methods: using Energy Score, creating a stable latent space through variational regularization, and increasing the semantic bandwidth of vectors. The article describes the journey from "brittle" embeddings to highly accurate automated talent matching systems.'
+tags: ['AI', 'HRTech', 'Tencent', 'CALM', 'NLP', 'Matching']
+authors: ['Iconicompany Team']
+language: 'en'
+---
+
+# From Cosine Similarity to the "Energy" of Meanings: How Tencent CALM Research is Changing the Game in AI Matching
+
+In the world of HR technologies and automated recruitment, vector representations of skills (embeddings) have become the "gold standard." At **Iconicompany**, we are constantly looking for ways to make resume and job description matching more accurate. Traditionally, cosine similarity has been used for this purpose, but is it sufficient?
+
+Recent research from WeChat AI Lab (Tencent) called **CALM (Continuous Autoregressive Language Models)** offers a radically new perspective on working with vectors, which could forever change our approach to matching.
+
+### The Problem of "Brittle" Vectors
+
+Most modern models extract skills as vectors, which are then compared in a space. However, the authors of CALM point to a critical problem: standard training methods create **"brittle representations."**
+
+In such a space, even a small change in the wording of a skill (e.g., "Python developer" vs. "Programmer Python") can cause vectors to be unjustifiably far apart. Cosine similarity in this case yields a low match percentage, even though semantically it's the same thing.
+
+### What CALM Teaches Us: 3 Methods to Improve Matching
+
+Tencent's research offers several tools that we can adapt to improve matching quality:
+
+#### 1. Transitioning to Energy Score
+
+Instead of simply measuring the angle between two vectors (cosine similarity), CALM uses **Energy Score** – a metric that assesses similarity based on distances between samples.
+
+* 
+**Why it's better:** The Energy Score considers not only the closeness of vectors but also their "diversity term." This allows for a more accurate assessment not just of a single skill, but of an entire *set* of competencies in a resume relative to a job description, avoiding the "collapse" of meanings.
+#### 2. Creating a "Smooth" Latent Space
+
+To make vectors robust to noise and different phrasing, the authors apply **Variational Regularization**.
+
+* 
+**How to apply it:** We can train our skill extraction models to map text not to a point in space, but to a small distribution (Gaussian posterior). Using the **KL-clipping** method guarantees that each vector dimension carries useful information and doesn't turn into "white noise."
+
+
+
+#### 3. Redundancy through Vector Dropout
+
+An interesting insight from the paper: using **Dropout** for vectors during training forces the model to learn redundant representations.
+
+* This makes the matching system incredibly robust. Even if some information in the resume is presented unclearly, the model can still reconstruct the true meaning and provide an accurate match percentage.
+
+
+
+### Our Perspective: Can the Model Be Improved?
+
+Absolutely. CALM's approach proves that the future lies not in increasing the number of parameters, but in increasing the **"semantic bandwidth"** of each step.
+
+For Iconicompany's tasks, this means transitioning from simple "word-for-word" comparison to analyzing entire "semantic chunks." CALM's autoencoder compresses a group of tokens into a single vector with a reconstruction accuracy of over 99.9%. This allows us to encode complex professional requirements into unified, dense vectors that are compared much more effectively than the arithmetic average of individual words.
+
+### Conclusion
+
+Cosine similarity is a great start, but it's no longer sufficient for high-precision talent matching. Tencent's innovations in continuous models give us the mathematical foundation for creating "smarter" and more robust systems. At **Iconicompany**, we have already begun experimenting with implementing energy metrics and latent space regularization to help our clients find ideal candidates even faster.
+
+*Want to learn more about how we implement cutting-edge research in practice? Subscribe to our updates!*
+
+
+
+*Based on materials: "Continuous Autoregressive Language Models" (Shao et al., 2025).*
+
+Paper: https://arxiv.org/abs/2510.27688
+Code: https://github.com/shaochenze/calm
+
