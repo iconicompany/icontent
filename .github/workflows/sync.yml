@@ -32,16 +32,16 @@ jobs:
         run: |
           mkdir -p ~/.config/io.datasette.llm
           cat <<EOF > ~/.config/io.datasette.llm/extra-openai-models.yaml
-          - model_id: gemini
-            model_name: gemini-2.5-flash-lite
+          - model_id: litellm
+            model_name: ${{ vars.OPENAI_MODEL }}
             api_base: "${{ vars.OPENAI_API_BASE }}"
-            api_key_name: gemini
+            api_key_name: litellm
           EOF
           
           cat <<EOF > ~/.config/io.datasette.llm/keys.json
           {
             "// Note": "This file stores secret API credentials. Do not share!",
-            "gemini": "${{ secrets.OPENAI_API_KEY }}"
+            "litellm": "${{ secrets.OPENAI_API_KEY }}"
           }
           EOF
 
@@ -72,7 +72,7 @@ jobs:
               
               PROMPT="Translate the following markdown file from Russian to English. Maintain all markdown formatting, frontmatter, and technical terms. Provide the translation in a markdown code block."
               
-              llm -m gemini --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
+              llm -m litellm --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
             fi
           done
 
