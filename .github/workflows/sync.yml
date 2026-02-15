@@ -14,7 +14,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: oven-sh/setup-bun@v2
+      #- uses: oven-sh/setup-bun@v2
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -76,22 +76,18 @@ jobs:
             fi
           done
 
-      - name: Commit and Push Translations and Database
+      - name: Commit and Push Translations
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Run local sync to update content.db
-          bun run sync
-          
-          git add content/en/ db/content.db
-          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate content and update database" && git push)
-
-      - name: Trigger Content DB Sync
+          git add content/en/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate content" && git push)
+ 
+      - name: Trigger Content Sync
         if: ${{ vars.SYNC_URL }}
         run: |
-          curl --fail --show-error -X PUT "${{ vars.SYNC_URL }}" \
+          curl --fail --show-error -X POST "${{ vars.SYNC_URL }}" \
             -H "Authorization: Bearer ${{ secrets.SYNC_TOKEN }}" \
-            -H "Content-Type: application/octet-stream" \
-            --data-binary "@db/content.db"
-
+            -H "Content-Type: application/json" \
+            -d "{}"
