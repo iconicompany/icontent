@@ -84,6 +84,14 @@ jobs:
           git add content/en/
           git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate content" && git push)
  
+      - name: Trigger Content Sync
+        if: ${{ vars.SYNC_URL }}
+        run: |
+          curl --fail --show-error -X POST "${{ vars.SYNC_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.SYNC_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{}"
+
       - name: Announce to Telegram
         if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHANNEL_ID != '' }}
         run: |
@@ -119,11 +127,3 @@ ${POST_URL}"
                 -d "$(jq -n --arg chat_id "${{ secrets.TELEGRAM_CHANNEL_ID }}" --arg text "$MESSAGE" '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}')"
             fi
           done
-
-      - name: Trigger Content Sync
-        if: ${{ vars.SYNC_URL }}
-        run: |
-          curl --fail --show-error -X POST "${{ vars.SYNC_URL }}" \
-            -H "Authorization: Bearer ${{ secrets.SYNC_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{}"
