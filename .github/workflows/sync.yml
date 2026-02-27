@@ -84,6 +84,42 @@ jobs:
           git add content/en/
           git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate content" && git push)
  
+      - name: Announce to Telegram
+        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHANNEL_ID != '' }}
+        run: |
+          BEFORE_SHA=${{ github.event.before }}
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE_SHA="HEAD~1"
+          fi
+
+          CHANGED_FILES=$(git diff --name-only $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changes in content/ru/blog/ found, skipping Telegram announcement."
+            exit 0
+          fi
+
+          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
+
+          for FILE in $CHANGED_FILES; do
+            if [ -f "$FILE" ]; then
+              SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
+              POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
+
+              PROMPT="На основе содержимого следующего поста напиши короткий анонс (2-4 предложения) для Telegram-канала на русском языке. Используй эмодзи для привлечения внимания. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом анонса, без пояснений и кавычек."
+
+              ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE, skipping."; continue; }
+
+              MESSAGE="${ANNOUNCEMENT}
+
+${POST_URL}"
+
+              curl --fail --show-error -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+                -H "Content-Type: application/json" \
+                -d "$(jq -n --arg chat_id "${{ secrets.TELEGRAM_CHANNEL_ID }}" --arg text "$MESSAGE" '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}')"
+            fi
+          done
+
       - name: Trigger Content Sync
         if: ${{ vars.SYNC_URL }}
         run: |
