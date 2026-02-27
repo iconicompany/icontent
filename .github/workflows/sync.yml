@@ -100,10 +100,10 @@ jobs:
             BEFORE_SHA="HEAD~1"
           fi
 
-          CHANGED_FILES=$(git diff --name-only $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' || true)
+          CHANGED_FILES=$(git diff --name-only --diff-filter=A $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' || true)
 
           if [ -z "$CHANGED_FILES" ]; then
-            echo "No changes in content/ru/blog/ found, skipping Telegram announcement."
+            echo "No new posts in content/ru/blog/ found, skipping Telegram announcement."
             exit 0
           fi
 
