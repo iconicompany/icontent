@@ -1,28 +1,28 @@
 ---
 title: 'Why Traditional Outstaffing Became Unprofitable in 2026'
 date: '2026-02-28'
-description: 'Increased tax burden and VAT have inflated the chain of markups in outstaffing. In 2026, it is more profitable for businesses to work directly and engage sole proprietors (IPs) and small teams.'
+description: 'Increased tax burden and VAT have extended the chain of markups in outstaffing. In 2026, it is more profitable for businesses to "rent" individual entrepreneurs (IEs) and small teams.'
 tags: ['IT', 'Outstaffing', 'Taxes', 'Skolkovo', 'B2B']
 authors: ['slavb18']
 language: 'en'
 ---
 
 
-## In 2026, traditional outstaffing ceased to be profitable due to a chain of intermediaries
+## In 2026, Traditional Outstaffing Ceased to Be Profitable Due to a Chain of Intermediaries
 
-There's a feeling that IT has become the "new oil," from which everyone decided to extract the maximum.
+There's a feeling that IT has become the "new oil" from which everyone decided to squeeze the maximum.
 
 What has changed over the past year:
 
-*   Social security contributions for IT companies have increased
+*   insurance contributions for IT companies have increased
 *   VAT has increased
-*   Even the simplified tax system no longer helps — VAT now appears in almost every chain
+*   even the simplified tax system no longer saves — VAT now appears in almost every chain
 
-And this is what's happening with classic outstaffing.
+And here's what's happening with classical outstaffing.
 
 ---
 
-## How the traditional scheme works
+## How the Traditional Scheme Works
 
 Client
 → Integrator
@@ -32,29 +32,29 @@ Client
 
 Each link adds:
 
-*   Its own margin (10–30%)
-*   Administrative costs
+*   its own margin (10–30%)
+*   administrative costs
 *   VAT
-*   Risk premium
+*   risk premium
 
-In 2022–2024, this was still "holding up."
+In 2022–2024, it still "held up".
 In 2026 — the chain of markups simply kills the project's economics.
 
 ---
 
-## What's happening in numbers
+## What Happens in Numbers
 
-A developer costs ₽250,000.
+A developer costs 250,000 ₽.
 
 After 3–4 intermediaries, the cost for the client easily becomes:
 
-**₽350,000–₽420,000 per month.**
+**350–420 thousand ₽ per month.**
 
-Meanwhile:
+At the same time:
 
-*   The specialist receives the same money,
-*   Quality doesn't improve,
-*   Deadlines don't speed up.
+*   the specialist receives the same money,
+*   quality does not increase,
+*   deadlines do not speed up.
 
 Only the client pays.
 
@@ -62,68 +62,68 @@ And for small and medium-sized businesses, this becomes critical.
 
 ---
 
-## Why the model is outdated
+## Why the Model is Outdated
 
 Traditional outstaffing is a linear economy:
 
 > more projects → more managers → more intermediaries → higher cost
 
-But in 2026, the winner is not the one with more "people in the chain,"
+But in 2026, the winner is not the one with more "people in the chain",
 but the one with the shortest path from task to executor.
 
 ---
 
-## What's more profitable now
+## What is More Profitable Now
 
-Direct cooperation with:
+Direct collaboration with:
 
 *   Skolkovo residents
-*   Technology platforms
-*   Individual Entrepreneurs (IPs) and small teams
+*   technological platforms
+*   individual entrepreneurs (IEs) and small teams
 
-Without 4–5 links of intermediaries.
+Without 4–5 intermediary links.
 
 ---
 
-## Alternative: a shorter chain
+## Alternative: Short Chain
 
 Client
 → Platform / Skolkovo Resident
-→ Individual Entrepreneur (IP) or Mini-team
+→ IE or Mini-Team
 
 Without unnecessary markups.
 
 What this provides:
 
-*   Reduction of total markup to 10–20%
-*   Transparent economics
-*   Fast team assembly
-*   Payment for the project, not "for air"
+*   reduction of total markup to 10–20%
+*   transparent economics
+*   fast team assembly
+*   payment for the project, not "for thin air"
 
 ---
 
 ## 2026 — The Year of Optimization
 
-Classic outstaffing was profitable when:
+Classical outstaffing was profitable when:
 
-*   Taxes were lower
-*   Margins allowed for "inflated" chains
-*   Businesses didn't scrutinize every operational item
+*   taxes were lower
+*   margins allowed "inflating" chains
+*   businesses did not count every operational item
 
-Now, everything is scrutinized.
+Now, everything is counted.
 
-And companies begin to choose:
+And companies are starting to choose:
 
-not the "intermediary's brand,"
-but the real economics of the project.
+not the "intermediary's brand",
+but the real project economics.
 
 ---
 
-If unnecessary links are removed,
+If you remove unnecessary links,
 IT once again becomes a tool for growth,
-not an expense that eats into profit.
+and not an item that eats into profits.
 
 In the new tax reality, the winner is the one
-who works directly with technology partners
-and leases expertise, rather than overpaying for a chain of intermediaries.
+who works directly with technological partners
+and "rents" expertise, instead of overpaying for a chain of intermediaries.
 
