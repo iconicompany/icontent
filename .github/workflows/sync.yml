@@ -118,9 +118,7 @@ jobs:
 
               ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE, skipping."; continue; }
 
-              MESSAGE="${ANNOUNCEMENT}
-
-${POST_URL}"
+              MESSAGE="${ANNOUNCEMENT} ${POST_URL}"
 
               curl --fail --show-error -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
                 -H "Content-Type: application/json" \
