@@ -1,0 +1,41 @@
+---
+title: 'Methods for Skill Extraction from Resumes and Job Postings'
+date: '2026-03-06'
+description: 'Exploring the automated skill extraction pipeline: NER with RuBERT, pattern matching via spaCy PhraseMatcher, and normalization through SentenceTransformers vector representations.'
+tags: ['AI', 'NLP', 'HR', 'HRTech', 'LLM']
+authors: ['slavb18']
+language: 'en'
+---
+
+# Methods for Skill Extraction from Resumes and Job Postings
+
+Automatic skill extraction is a key task in recruitment systems, job recommendation, and labor market analysis. The input consists of unstructured text: the "Requirements" section of a job posting or the "Experience/Skills" block of a resume. The output is expected to be a normalized list of competencies, suitable for searching, comparison, and analytics.
+
+This article discusses the pipeline implemented in <a href="https://github.com/iconicompany/iskillmatching">`iskillmatching`</a>, which combines three complementary approaches:
+
+1.  **NER based on LLM** — neural network named entity recognition.
+2.  **Pattern matching via spaCy** — searching using a predefined skill dictionary.
+3.  **Normalization via vector representations** — converting extracted variants to canonical forms using semantic similarity.
+
+---
+
+## 1. NER based on LLM (Neural Network Named Entity Recognition)
+
+### What is NER
+
+**Named Entity Recognition (NER)** is a sequence classification task where each token in a text is assigned a label: whether it is part of a named entity (e.g., "technology," "skill," "organization") or not. Traditionally, NER was solved using CRFs and rules, but modern transformer-based LLMs (Large Language Models) achieve significantly higher quality due to their contextual understanding of text.
+
+### Model Used
+
+In `ner_utils.py`, the HuggingFace Transformers pipeline is used:
+
+```python
+from transformers import pipeline
+
+def get_ner_extractor(model_name="dondosss/rubert-finetuned-ner"):
+    return pipeline(
+        "token-classification",
+        model=model_name,
+        aggregation_strategy="simple"
+    )
+
