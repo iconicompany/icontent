@@ -77,7 +77,7 @@ jobs:
               
               echo "Translating $FILE to $EN_FILE..."
               
-              PROMPT="Translate the following markdown file from Russian to English. Maintain all markdown formatting, frontmatter, and technical terms. Provide the translation in a markdown code block."
+              PROMPT="Translate the following markdown file from Russian to English. Maintain all markdown formatting, frontmatter, and technical terms. Provide the translation in a markdown code block. Important: in the YAML frontmatter, use double quotes (not single quotes) for all string values such as title and description, so that apostrophes in the text do not break the YAML syntax."
               
               llm -m litellm --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
             fi
