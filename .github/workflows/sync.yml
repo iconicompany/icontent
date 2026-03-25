@@ -45,6 +45,42 @@ jobs:
           }
           EOF
 
+      - name: Clean AI symbols in changed files
+        run: |
+          BEFORE_SHA=${{ github.event.before }}
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE_SHA="HEAD~1"
+          fi
+
+          printf '%s\n' \
+            's/•/-/g' \
+            's/—/-/g' \
+            's/–/-/g' \
+            's/[""]/"/g' \
+            "s/['']/'/g" \
+            's/[«»]/"/g' \
+            's/…/.../g' \
+            's/×/x/g' \
+            's/°/o/g' \
+            's/[[:space:]]+/ /g' \
+            's/^[[:space:]]+//g' \
+            's/[[:space:]]+$//g' \
+            > /tmp/clean_ai.sed
+
+          CHANGED_CONTENT_FILES=$(git diff --name-only $BEFORE_SHA ${{ github.sha }} | grep '^content/' || true)
+
+          if [ -z "$CHANGED_CONTENT_FILES" ]; then
+            echo "No changes in content/ found."
+            exit 0
+          fi
+
+          for FILE in $CHANGED_CONTENT_FILES; do
+            if [ -f "$FILE" ]; then
+              echo "Cleaning AI symbols in $FILE..."
+              sed -i -E -f /tmp/clean_ai.sed "$FILE"
+            fi
+          done
+
       - name: Translate Changed Russian Files
         run: |
           # Get list of changed files in content/ru
@@ -80,6 +116,9 @@ jobs:
               PROMPT="Translate the following markdown file from Russian to English. Maintain all markdown formatting, frontmatter, and technical terms. Provide the translation in a markdown code block. Important: in the YAML frontmatter, use double quotes (not single quotes) for all string values such as title and description, so that apostrophes in the text do not break the YAML syntax."
               
               llm -m litellm --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
+              
+              echo "Cleaning AI symbols in $EN_FILE..."
+              sed -i -E -f /tmp/clean_ai.sed "$EN_FILE"
             fi
           done
 
@@ -88,7 +127,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          git add content/en/
+          git add content/
           git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-translate content" && git push)
  
       - name: Trigger Content Sync
