@@ -14,9 +14,9 @@ There's a feeling that IT has become the "new oil" from which everyone decided t
 
 What has changed over the past year:
 
-*   insurance contributions for IT companies have increased
-*   VAT has increased
-*   even the simplified tax system no longer saves — VAT now appears in almost every chain
+* insurance contributions for IT companies have increased
+* VAT has increased
+* even the simplified tax system no longer saves - VAT now appears in almost every chain
 
 And here's what's happening with classical outstaffing.
 
@@ -32,13 +32,13 @@ Client
 
 Each link adds:
 
-*   its own margin (10–30%)
-*   administrative costs
-*   VAT
-*   risk premium
+* its own margin (10-30%)
+* administrative costs
+* VAT
+* risk premium
 
-In 2022–2024, it still "held up".
-In 2026 — the chain of markups simply kills the project's economics.
+In 2022-2024, it still "held up".
+In 2026 - the chain of markups simply kills the project's economics.
 
 ---
 
@@ -46,15 +46,15 @@ In 2026 — the chain of markups simply kills the project's economics.
 
 A developer costs 250,000 ₽.
 
-After 3–4 intermediaries, the cost for the client easily becomes:
+After 3-4 intermediaries, the cost for the client easily becomes:
 
-**350–420 thousand ₽ per month.**
+**350-420 thousand ₽ per month.**
 
 At the same time:
 
-*   the specialist receives the same money,
-*   quality does not increase,
-*   deadlines do not speed up.
+* the specialist receives the same money,
+* quality does not increase,
+* deadlines do not speed up.
 
 Only the client pays.
 
@@ -77,11 +77,11 @@ but the one with the shortest path from task to executor.
 
 Direct collaboration with:
 
-*   Skolkovo residents
-*   technological platforms
-*   individual entrepreneurs (IEs) and small teams
+* Skolkovo residents
+* technological platforms
+* individual entrepreneurs (IEs) and small teams
 
-Without 4–5 intermediary links.
+Without 4-5 intermediary links.
 
 ---
 
@@ -95,20 +95,20 @@ Without unnecessary markups.
 
 What this provides:
 
-*   reduction of total markup to 10–20%
-*   transparent economics
-*   fast team assembly
-*   payment for the project, not "for thin air"
+* reduction of total markup to 10-20%
+* transparent economics
+* fast team assembly
+* payment for the project, not "for thin air"
 
 ---
 
-## 2026 — The Year of Optimization
+## 2026 - The Year of Optimization
 
 Classical outstaffing was profitable when:
 
-*   taxes were lower
-*   margins allowed "inflating" chains
-*   businesses did not count every operational item
+* taxes were lower
+* margins allowed "inflating" chains
+* businesses did not count every operational item
 
 Now, everything is counted.
 

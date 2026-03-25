@@ -13,9 +13,9 @@ Automatic skill extraction is a key task in recruitment systems, job recommendat
 
 This article discusses the pipeline implemented in <a href="https://github.com/iconicompany/iskillmatching">`iskillmatching`</a>, which combines three complementary approaches:
 
-1.  **NER based on LLM** — neural network named entity recognition.
-2.  **Pattern matching via spaCy** — searching using a predefined skill dictionary.
-3.  **Normalization via vector representations** — converting extracted variants to canonical forms using semantic similarity.
+1. **NER based on LLM** - neural network named entity recognition.
+2. **Pattern matching via spaCy** - searching using a predefined skill dictionary.
+3. **Normalization via vector representations** - converting extracted variants to canonical forms using semantic similarity.
 
 ---
 
@@ -33,9 +33,9 @@ In `ner_utils.py`, the HuggingFace Transformers pipeline is used:
 from transformers import pipeline
 
 def get_ner_extractor(model_name="dondosss/rubert-finetuned-ner"):
-    return pipeline(
-        "token-classification",
-        model=model_name,
-        aggregation_strategy="simple"
-    )
+return pipeline(
+"token-classification",
+model=model_name,
+aggregation_strategy="simple"
+)
 

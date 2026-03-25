@@ -9,13 +9,13 @@ language: 'ru'
 
 # Методы извлечения навыков из резюме и вакансий
 
-Автоматическое извлечение навыков (skills extraction) — ключевая задача в системах подбора персонала, рекомендации вакансий и анализа рынка труда. На вход поступает неструктурированный текст: раздел «Требования» вакансии или блок «Опыт/Навыки» резюме. На выходе ожидается нормализованный список компетенций, пригодный для поиска, сравнения и аналитики.
+Автоматическое извлечение навыков (skills extraction) - ключевая задача в системах подбора персонала, рекомендации вакансий и анализа рынка труда. На вход поступает неструктурированный текст: раздел "Требования" вакансии или блок "Опыт/Навыки" резюме. На выходе ожидается нормализованный список компетенций, пригодный для поиска, сравнения и аналитики.
 
 В этой статье рассматривается конвейер, реализованный в <a href="https://github.com/iconicompany/iskillmatching">`iskillmatching`</a>, который объединяет три взаимодополняющих подхода:
 
-1. **NER на основе LLM** — нейросетевое распознавание именованных сущностей.
-2. **Сопоставление шаблонов через spaCy** — поиск по заранее составленному словарю навыков.
-3. **Нормализация через векторные представления** — приведение извлечённых вариантов к каноническим формам с помощью семантического сходства.
+1. **NER на основе LLM** - нейросетевое распознавание именованных сущностей.
+2. **Сопоставление шаблонов через spaCy** - поиск по заранее составленному словарю навыков.
+3. **Нормализация через векторные представления** - приведение извлечённых вариантов к каноническим формам с помощью семантического сходства.
 
 ---
 
@@ -23,7 +23,7 @@ language: 'ru'
 
 ### Что такое NER
 
-**Named Entity Recognition (NER)** — задача последовательной классификации, при которой каждому токену текста присваивается метка: является ли он частью именованной сущности (например, «технология», «навык», «организация») или нет. Традиционно NER решался с помощью CRF и правил, однако современные трансформерные LLM (Large Language Models) достигают значительно более высокого качества за счёт контекстного понимания текста.
+**Named Entity Recognition (NER)** - задача последовательной классификации, при которой каждому токену текста присваивается метка: является ли он частью именованной сущности (например, "технология", "навык", "организация") или нет. Традиционно NER решался с помощью CRF и правил, однако современные трансформерные LLM (Large Language Models) достигают значительно более высокого качества за счёт контекстного понимания текста.
 
 ### Используемая модель
 
@@ -33,27 +33,27 @@ language: 'ru'
 from transformers import pipeline
 
 def get_ner_extractor(model_name="dondosss/rubert-finetuned-ner"):
-    return pipeline(
-        "token-classification",
-        model=model_name,
-        aggregation_strategy="simple"
-    )
+return pipeline(
+"token-classification",
+model=model_name,
+aggregation_strategy="simple"
+)
 ```
 
-Модель `dondosss/rubert-finetuned-ner` — это дообученная (fine-tuned) версия **RuBERT** на задаче NER для русскоязычных текстов. RuBERT — российский аналог BERT, предобученный на большом корпусе русского языка. Дообучение на размеченных текстах резюме и вакансий позволяет модели распознавать технологии, фреймворки и инструменты как именованные сущности.
+Модель `dondosss/rubert-finetuned-ner` - это дообученная (fine-tuned) версия **RuBERT** на задаче NER для русскоязычных текстов. RuBERT - российский аналог BERT, предобученный на большом корпусе русского языка. Дообучение на размеченных текстах резюме и вакансий позволяет модели распознавать технологии, фреймворки и инструменты как именованные сущности.
 
-Параметр `aggregation_strategy="simple"` обеспечивает автоматическое объединение субтокенов (BPE-фрагментов) в целые слова — без него результат содержал бы артефакты вроде `##Script` вместо `JavaScript`.
+Параметр `aggregation_strategy="simple"` обеспечивает автоматическое объединение субтокенов (BPE-фрагментов) в целые слова - без него результат содержал бы артефакты вроде `##Script` вместо `JavaScript`.
 
 ### Процесс извлечения
 
 ```python
 def extract_ner_skills(texts, ner_extractor):
-    results = ner_extractor(texts)
-    piped_skills = []
-    for ents in results:
-        skills = list(set([e["word"].lower() for e in ents]))
-        piped_skills.append("|".join(skills))
-    return piped_skills
+results = ner_extractor(texts)
+piped_skills = []
+for ents in results:
+skills = list(set([e["word"].lower() for e in ents]))
+piped_skills.append("|".join(skills))
+return piped_skills
 ```
 
 Модель обрабатывает батч текстов и возвращает для каждого список сущностей. Результат сериализуется в строку с разделителем `|` для удобного хранения в CSV. Дубликаты устраняются через `set`.
@@ -62,7 +62,7 @@ def extract_ner_skills(texts, ner_extractor):
 
 | Достоинства | Ограничения |
 |---|---|
-| Находит навыки без словаря, «из контекста» | Может галлюцинировать (ложные сущности) |
+| Находит навыки без словаря, "из контекста" | Может галлюцинировать (ложные сущности) |
 | Справляется с опечатками и морфологией | Зависит от качества дообучающей выборки |
 | Работает с аббревиатурами и составными терминами | Высокие требования к памяти GPU/CPU |
 
@@ -72,7 +72,7 @@ def extract_ner_skills(texts, ner_extractor):
 
 ### Идея подхода
 
-В отличие от NER, который «угадывает» навыки из контекста, **PhraseMatcher** работает по принципу словаря: задаётся список эталонных фраз, и система ищет их вхождения в тексте. Это делает метод детерминированным — он не ошибается, если навык есть в словаре, и не придумывает несуществующих сущностей.
+В отличие от NER, который "угадывает" навыки из контекста, **PhraseMatcher** работает по принципу словаря: задаётся список эталонных фраз, и система ищет их вхождения в тексте. Это делает метод детерминированным - он не ошибается, если навык есть в словаре, и не придумывает несуществующих сущностей.
 
 ### Реализация в spaCy
 
@@ -80,13 +80,13 @@ def extract_ner_skills(texts, ner_extractor):
 from spacy.matcher import PhraseMatcher
 
 def get_spacy_matcher(nlp, skills_list):
-    matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
-    patterns = [nlp.make_doc(skill) for skill in skills_list]
-    matcher.add("SKILL", patterns)
-    return matcher
+matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
+patterns = [nlp.make_doc(skill) for skill in skills_list]
+matcher.add("SKILL", patterns)
+return matcher
 ```
 
-Ключевой момент: `attr="LOWER"` означает регистронезависимое сравнение. `nlp.make_doc` создаёт spaCy-документ из строки — это быстрее, чем полный парсинг, так как не требует запуска всего NLP-конвейера.
+Ключевой момент: `attr="LOWER"` означает регистронезависимое сравнение. `nlp.make_doc` создаёт spaCy-документ из строки - это быстрее, чем полный парсинг, так как не требует запуска всего NLP-конвейера.
 
 Сам поиск работает за линейное время от длины текста (O(n)), поскольку под капотом spaCy использует оптимизированный хэш-матч по токенам.
 
@@ -94,22 +94,22 @@ def get_spacy_matcher(nlp, skills_list):
 
 ```python
 def extract_spacy_skills(texts, nlp, matcher):
-    piped_skills = []
-    for doc in nlp.pipe(texts):
-        matches = matcher(doc)
-        seen_skills = set()
-        extracted_skills = []
-        for match_id, start, end in matches:
-            span = doc[start:end]
-            skill_name = span.text
-            if skill_name.lower() not in seen_skills:
-                extracted_skills.append(skill_name)
-                seen_skills.add(skill_name.lower())
-        piped_skills.append("|".join(extracted_skills))
-    return piped_skills
+piped_skills = []
+for doc in nlp.pipe(texts):
+matches = matcher(doc)
+seen_skills = set()
+extracted_skills = []
+for match_id, start, end in matches:
+span = doc[start:end]
+skill_name = span.text
+if skill_name.lower() not in seen_skills:
+extracted_skills.append(skill_name)
+seen_skills.add(skill_name.lower())
+piped_skills.append("|".join(extracted_skills))
+return piped_skills
 ```
 
-`nlp.pipe` обрабатывает тексты потоком, что существенно эффективнее цикла с `nlp(text)`, — тексты передаются батчами, токенизация векторизована.
+`nlp.pipe` обрабатывает тексты потоком, что существенно эффективнее цикла с `nlp(text)`, - тексты передаются батчами, токенизация векторизована.
 
 ### Источник словаря навыков
 
@@ -117,14 +117,14 @@ def extract_spacy_skills(texts, nlp, matcher):
 
 ```python
 def extract_fallback_skills(df):
-    fallback_skills = set()
-    for col in ["skills", "stack"]:
-        if col in df.columns:
-            series = df[col].fillna("").astype(str)
-            for val in series:
-                parts = [p.strip().lower() for p in val.split("|") if p.strip()]
-                fallback_skills.update(parts)
-    return sorted(list(fallback_skills))
+fallback_skills = set()
+for col in ["skills", "stack"]:
+if col in df.columns:
+series = df[col].fillna("").astype(str)
+for val in series:
+parts = [p.strip().lower() for p in val.split("|") if p.strip()]
+fallback_skills.update(parts)
+return sorted(list(fallback_skills))
 ```
 
 ### Достоинства и ограничения
@@ -143,26 +143,26 @@ def extract_fallback_skills(df):
 
 ```python
 def combine_and_clean(ner_piped, spacy_piped):
-    ner_set = set(ner_piped.split("|")) if ner_piped else set()
-    spacy_set = set(spacy_piped.split("|")) if spacy_piped else set()
-    combined_set = ner_set.union(spacy_set)
-    cleaned_skills = []
-    seen = set()
-    for s in combined_set:
-        cleaned = clean_skill(s)
-        if cleaned and cleaned not in seen:
-            cleaned_skills.append(cleaned)
-            seen.add(cleaned)
-    return "|".join(sorted(cleaned_skills))
+ner_set = set(ner_piped.split("|")) if ner_piped else set()
+spacy_set = set(spacy_piped.split("|")) if spacy_piped else set()
+combined_set = ner_set.union(spacy_set)
+cleaned_skills = []
+seen = set()
+for s in combined_set:
+cleaned = clean_skill(s)
+if cleaned and cleaned not in seen:
+cleaned_skills.append(cleaned)
+seen.add(cleaned)
+return "|".join(sorted(cleaned_skills))
 ```
 
 Функция `clean_skill` решает несколько задач:
 
 - **Удаление BERT-артефактов**: субтокены вида `##Script` → `Script`.
 - **Удаление шума на границах**: лишние пробелы, дефисы, скобки, кавычки.
-- **Фильтрация стоп-слов**: слова «знание», «опыт», «уровень», «разработка» и т.д. не являются навыками и исключаются.
+- **Фильтрация стоп-слов**: слова "знание", "опыт", "уровень", "разработка" и т.д. не являются навыками и исключаются.
 
-Список стоп-слов (`SKILL_STOP_WORDS`) специфичен для русскоязычных текстов резюме и вакансий и насчитывает более 50 типичных «пустышек».
+Список стоп-слов (`SKILL_STOP_WORDS`) специфичен для русскоязычных текстов резюме и вакансий и насчитывает более 50 типичных "пустышек".
 
 ---
 
@@ -170,7 +170,7 @@ def combine_and_clean(ner_piped, spacy_piped):
 
 ### Проблема, которую решает нормализация
 
-После объединения NER и spaCy-результатов мы получаем «сырые» навыки: `"python 3"`, `"python3"`, `"Python"`, `"питон"` — это одна и та же технология, но разные строки. Без нормализации они будут учитываться раздельно, что делает невозможным корректный поиск и агрегацию.
+После объединения NER и spaCy-результатов мы получаем "сырые" навыки: `"python 3"`, `"python3"`, `"Python"`, `"питон"` - это одна и та же технология, но разные строки. Без нормализации они будут учитываться раздельно, что делает невозможным корректный поиск и агрегацию.
 
 ### Семантические векторы (Sentence Embeddings)
 
@@ -181,17 +181,17 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 class SkillNormalizer:
-    def __init__(self, skills_data, model_name, threshold=0.6):
-        self.model = SentenceTransformer(model_name)
-        self.threshold = threshold
-        self.skill_embeddings = self.model.encode(
-            self.skills,
-            normalize_embeddings=True,
-            batch_size=128
-        )
+def __init__(self, skills_data, model_name, threshold=0.6):
+self.model = SentenceTransformer(model_name)
+self.threshold = threshold
+self.skill_embeddings = self.model.encode(
+self.skills,
+normalize_embeddings=True,
+batch_size=128
+)
 ```
 
-Модель `anass1209/resume-job-matcher-all-MiniLM-L6-v2` — это дообученная версия **all-MiniLM-L6-v2**, адаптированная специально для задачи сопоставления резюме и вакансий. Она преобразует строку навыка в вектор размерностью 384, кодирующий семантический смысл.
+Модель `anass1209/resume-job-matcher-all-MiniLM-L6-v2` - это дообученная версия **all-MiniLM-L6-v2**, адаптированная специально для задачи сопоставления резюме и вакансий. Она преобразует строку навыка в вектор размерностью 384, кодирующий семантический смысл.
 
 Флаг `normalize_embeddings=True` гарантирует, что все векторы имеют единичную длину. В этом случае косинусное сходство совпадает со скалярным произведением, что ускоряет вычисления.
 
@@ -199,16 +199,16 @@ class SkillNormalizer:
 
 ```python
 def normalize_batch(self, piped_skills_batch):
-    for piped_str in piped_skills_batch:
-        current_skills = [s.strip() for s in piped_str.split("|") if s.strip()]
-        embeddings = self.model.encode(current_skills, normalize_embeddings=True)
-        sims = cosine_similarity(embeddings, self.skill_embeddings)
-        normalized_set = set()
-        for row in sims:
-            best_idx = np.argmax(row)
-            if row[best_idx] >= self.threshold:
-                normalized_set.add(self.skills[best_idx])
-        results.append("|".join(sorted(normalized_set)))
+for piped_str in piped_skills_batch:
+current_skills = [s.strip() for s in piped_str.split("|") if s.strip()]
+embeddings = self.model.encode(current_skills, normalize_embeddings=True)
+sims = cosine_similarity(embeddings, self.skill_embeddings)
+normalized_set = set()
+for row in sims:
+best_idx = np.argmax(row)
+if row[best_idx] >= self.threshold:
+normalized_set.add(self.skills[best_idx])
+results.append("|".join(sorted(normalized_set)))
 ```
 
 Для каждого извлечённого навыка алгоритм:
@@ -217,17 +217,17 @@ def normalize_batch(self, piped_skills_batch):
 3. Выбирает наиболее похожий эталон (`argmax`).
 4. Принимает его, если сходство превышает порог (`threshold=0.8` в `extract.py`).
 
-Если порог не достигнут, навык отбрасывается — это защита от ложных обобщений (например, чтобы слово «работа» не нормализовалось к «Java»). Класс `SkillNormalizer` принимает порог как параметр конструктора (по умолчанию `0.6`), а в точке вызова в `extract.py` он переопределяется до `0.8` для получения более строгих совпадений в продакшн-сценарии.
+Если порог не достигнут, навык отбрасывается - это защита от ложных обобщений (например, чтобы слово "работа" не нормализовалось к "Java"). Класс `SkillNormalizer` принимает порог как параметр конструктора (по умолчанию `0.6`), а в точке вызова в `extract.py` он переопределяется до `0.8` для получения более строгих совпадений в продакшн-сценарии.
 
 ### Визуализация работы нормализации
 
 ```
-Сырой навык          →  Эмбеддинг  →  Ближайший эталон      →  Сходство
+Сырой навык → Эмбеддинг → Ближайший эталон → Сходство
 ─────────────────────────────────────────────────────────────────────────
-"python3"            →  [0.12, …]  →  "Python"              →  0.97 ✓
-"react.js"           →  [0.34, …]  →  "React"               →  0.91 ✓
-"разработка на С++"  →  [0.56, …]  →  "C++"                 →  0.82 ✓
-"опыт работы"        →  [0.78, …]  →  "Работа"              →  0.51 ✗ (ниже порога)
+"python3" → [0.12, ...] → "Python" → 0.97 ✓
+"react.js" → [0.34, ...] → "React" → 0.91 ✓
+"разработка на С++" → [0.56, ...] → "C++" → 0.82 ✓
+"опыт работы" → [0.78, ...] → "Работа" → 0.51 ✗ (ниже порога)
 ```
 
 ### Достоинства и ограничения
@@ -243,33 +243,33 @@ def normalize_batch(self, piped_skills_batch):
 ## 5. Общая архитектура конвейера
 
 ```
-                         ┌─────────────┐
- Текст вакансии/резюме   │   extract.py │
- ─────────────────────►  │             │
-                         └──────┬──────┘
-                                │
-              ┌─────────────────┼─────────────────┐
-              ▼                                   ▼
-     ┌──────────────┐                   ┌──────────────────┐
-     │  NER (LLM)   │                   │ spaCy Matcher    │
-     │  RuBERT NER  │                   │ (PhraseMatcher)  │
-     └──────┬───────┘                   └────────┬─────────┘
-            │                                    │
-            └──────────────┬─────────────────────┘
-                           ▼
-                  ┌─────────────────┐
-                  │ combine_and_clean│
-                  │  (stop words,   │
-                  │   dedup, clean) │
-                  └────────┬────────┘
-                           ▼
-                  ┌─────────────────┐
-                  │ SkillNormalizer │
-                  │ (SentenceTransf.│
-                  │  cosine sim.)   │
-                  └────────┬────────┘
-                           ▼
-               Нормализованный список навыков
+┌─────────────┐
+Текст вакансии/резюме │ extract.py │
+─────────────────────► │ │
+└──────┬──────┘
+│
+┌─────────────────┼─────────────────┐
+▼ ▼
+┌──────────────┐ ┌──────────────────┐
+│ NER (LLM) │ │ spaCy Matcher │
+│ RuBERT NER │ │ (PhraseMatcher) │
+└──────┬───────┘ └────────┬─────────┘
+│ │
+└──────────────┬─────────────────────┘
+▼
+┌─────────────────┐
+│ combine_and_clean│
+│ (stop words, │
+│ dedup, clean) │
+└────────┬────────┘
+▼
+┌─────────────────┐
+│ SkillNormalizer │
+│ (SentenceTransf.│
+│ cosine sim.) │
+└────────┬────────┘
+▼
+Нормализованный список навыков
 ```
 
 Каждый шаг сохраняется в отдельный столбец CSV (`ner`, `spacy`, `combined`, `normalized`), что позволяет отлаживать конвейер и анализировать вклад каждого метода.
@@ -280,7 +280,7 @@ def normalize_batch(self, piped_skills_batch):
 
 | Критерий | NER (LLM) | spaCy Matcher | Векторная нормализация |
 |---|---|---|---|
-| **Полнота (recall)** | Высокая | Средняя (ограничена словарём) | — |
+| **Полнота (recall)** | Высокая | Средняя (ограничена словарём) | - |
 | **Точность (precision)** | Средняя | Высокая | Высокая |
 | **Скорость** | Медленно (GPU желателен) | Быстро (CPU) | Средне |
 | **Поддержка** | Нужно дообучение | Нужен актуальный словарь | Нужен словарь эталонов |

@@ -58,7 +58,7 @@ The OCR and Visual-Language Model (VLM) industry has experienced a real boom in 
 
 **Features:**
 
-* OmniDocBench v1.5 — **94.5% accuracy**.
+* OmniDocBench v1.5 - **94.5% accuracy**.
 * Text spotting, seal recognition, table stitching across pages.
 * Support for rare languages, Tibetan, and Bengali.
 * Easy integration via transformers, Docker, and Paddle.
@@ -79,7 +79,7 @@ The OCR and Visual-Language Model (VLM) industry has experienced a real boom in 
 
 **Pros:**
 
-* OmniDocBench v1.5 — **94.62% (#1)**.
+* OmniDocBench v1.5 - **94.62% (#1)**.
 * Supports tables, formulas, seals, and code-heavy documents.
 * Fast inference: vLLM / SGLang / Ollama.
 * SDK and simple integration, open-source.
@@ -88,28 +88,28 @@ The OCR and Visual-Language Model (VLM) industry has experienced a real boom in 
 
 * JSON schema for Information Extraction requires strict adherence.
 
-**License:** MIT (layout — Apache 2.0)
+**License:** MIT (layout - Apache 2.0)
 **Links:** [Hugging Face](https://huggingface.co/zai-org/GLM-OCR) | [GitHub](https://github.com/zai-org/GLM-OCR)
 
 ---
 
 ## Comparison Table
 
-| Model           | Parameters | Primary Focus     | Benchmark         | OCR / Doc Score              | License   | Deployment           |
+| Model | Parameters | Primary Focus | Benchmark | OCR / Doc Score | License | Deployment |
 | --------------- | ---------- | ----------------- | ----------------- | ---------------------------- | --------- | -------------------- |
-| DeepSeek-OCR 2  | 3B         | OCR + Structure   | OCRBench          | +4% vs v1, beats Gemini Pro | Apache 2.0 | HF, Unsloth          |
-| Step3-VL-10B    | 10B        | Universal VLM     | OCRBench          | 86.75                        | Apache 2.0 | vLLM, OpenAI-API     |
-| PaddleOCR-VL-1.5| 0.9B       | Field OCR         | OmniDocBench v1.5 | 94.5                         | Apache 2.0 | Paddle, Docker       |
-| GLM-OCR         | 0.9B       | OCR + IE          | OmniDocBench v1.5 | 94.62 (#1)                   | MIT       | vLLM, SGLang, Ollama |
+| DeepSeek-OCR 2 | 3B | OCR + Structure | OCRBench | +4% vs v1, beats Gemini Pro | Apache 2.0 | HF, Unsloth |
+| Step3-VL-10B | 10B | Universal VLM | OCRBench | 86.75 | Apache 2.0 | vLLM, OpenAI-API |
+| PaddleOCR-VL-1.5| 0.9B | Field OCR | OmniDocBench v1.5 | 94.5 | Apache 2.0 | Paddle, Docker |
+| GLM-OCR | 0.9B | OCR + IE | OmniDocBench v1.5 | 94.62 (#1) | MIT | vLLM, SGLang, Ollama |
 
 ---
 
 ## Conclusion
 
-*   **Leaders on OmniDocBench:** GLM-OCR (94.62%) and PaddleOCR-VL-1.5 (94.5%).
-*   **Lightest and fastest for production:** PaddleOCR-VL-1.5 and GLM-OCR.
-*   **Most "intelligent" architecturally:** DeepSeek-OCR 2 with DeepEncoder V2.
-*   **Most versatile VLM:** Step3-VL-10B (OCR is only part of its capabilities).
+* **Leaders on OmniDocBench:** GLM-OCR (94.62%) and PaddleOCR-VL-1.5 (94.5%).
+* **Lightest and fastest for production:** PaddleOCR-VL-1.5 and GLM-OCR.
+* **Most "intelligent" architecturally:** DeepSeek-OCR 2 with DeepEncoder V2.
+* **Most versatile VLM:** Step3-VL-10B (OCR is only part of its capabilities).
 
 OCR and VLM have reached a level of maturity that allows for the implementation of document recognition in real production scenarios: from tables and formulas to multi-page PDFs with code and seals. The race for speed, accuracy, and document "understanding" continues.
 

@@ -8,8 +8,8 @@ authors: ['slavb18']
 
 **DevOps for Startups: Moving Away from Vercel Without Complicating Things 🛠**
 
-We in the team don't look for easy ways – most of the time we set up "adult" pipelines with deployment to k3s.
-It's reliable, scalable, and correct… but for small MVPs at the start, it's often overkill.
+We in the team don't look for easy ways - most of the time we set up "adult" pipelines with deployment to k3s.
+It's reliable, scalable, and correct... but for small MVPs at the start, it's often overkill.
 
 Clients regularly ask:
 
@@ -24,7 +24,7 @@ And here lies the trap.
 * and → growing costs with scaling
 
 At the same time, a regular **VPS** is almost always cheaper and gives full control.
-There's only one problem – **nobody wants to set up a server manually**.
+There's only one problem - **nobody wants to set up a server manually**.
 
 ### Solution: Self-hosted PaaS
 
@@ -33,13 +33,13 @@ We looked into self-hosted PaaS and compared two popular players:
 * **Coolify**
 * **Dokploy**
 
-🏆 **Our Choice — Dokploy**
+🏆 **Our Choice - Dokploy**
 
 Why it appealed to us more than Coolify:
 
-✅ **Interface** — cleaner and more intuitive, less "visual noise"
-✅ **Lightweight** — Dokploy itself consumes fewer resources
-✅ **Functionality** — monitoring and GitHub integration work "out of the box"
+✅ **Interface** - cleaner and more intuitive, less "visual noise"
+✅ **Lightweight** - Dokploy itself consumes fewer resources
+✅ **Functionality** - monitoring and GitHub integration work "out of the box"
 
 ### Our Workflow
 
@@ -60,5 +60,5 @@ We got:
 * **zero vendor lock-in**
 * transparent and controlled deployment
 
-For MVPs and early-stage startups – a **real must-have** if you want fast, cheap, and without future migration headaches.
+For MVPs and early-stage startups - a **real must-have** if you want fast, cheap, and without future migration headaches.
 
