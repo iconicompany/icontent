@@ -1,0 +1,43 @@
+---
+title: "How We 'Hack' HR-Tech: A Discussion with the Author of CALM from Tencent AI"
+date: "2026-04-09"
+description: "We discussed the applicability of the Energy Score method directly with Chenze Shao, a WeChat AI (Tencent) researcher and the author of the CALM architecture. We explain how a multi-stage pipeline with Energy Gating solves the 'semantic collapse' problem and saves budget on LLM computations."
+tags: ["AI", "HRTech", "CALM", "LLM", "Agents", "Matching"]
+authors: ["slavb18"]
+language: "en"
+---
+
+While everyone else is just attaching ChatGPT to a resume database, we at **Iconicompany** are delving into fundamental AI to solve the "vector fragility" problem.
+
+Recently, we discussed the applicability of the Energy Score method directly with **Chenze Shao** - a researcher from WeChat AI (Tencent) and the author of the groundbreaking **CALM (Continuous Autoregressive Language Models)** architecture.
+
+## What's the problem with current search?
+
+Standard vector search (Cosine Similarity) often suffers from **"semantic collapse"**. The system sees similar words and assigns a high score - but when an expensive LLM takes over for final verification, it turns out the candidate isn't suitable at all.
+
+This leads to a huge number of "idle" and costly model runs.
+
+## Our Solution: A Multi-Stage Pipeline with Energy Gating
+
+We are building a multi-stage recruitment pipeline where **Energy Score** (based on Brier Score) acts as an intelligent "cutoff filter" (Inference Gate):
+
+1️⃣ **Coarse Retrieval** - fast search using standard embeddings.
+
+2️⃣ **Energy Gating** - our original calibration layer. We train it on a proprietary dataset of **500,000 labeled "job-specialist" pairs**. The model predicts the probability of successful LLM verification. If the "energy" of the match is low - we short-circuit the pipeline and don't spend money on an LLM.
+
+3️⃣ **Fine Ranking** - precise neural network verification only for the best of the best.
+
+This approach allows for a significant increase in accuracy in complex domains - for example, in engineering recruitment.
+
+## Why is this important?
+
+This is **Agentic AI in action**: the system optimizes its own resources to deliver a verified team to the client within 48 hours, without burning budget on useless computations.
+
+The discussion with Chenze Shao confirmed that this direction is promising: Energy Score indeed provides more robust signals where cosine similarity "drifts" due to noise in skill formulations.
+
+---
+
+🔗 Discussion details: <a href="https://github.com/iconicompany/icontent/issues/19">issue #19</a>
+
+Want to learn more about our AI recruitment approach? Contact us at <a href="https://t.me/iconicompany">@iconicompany</a>.
+
