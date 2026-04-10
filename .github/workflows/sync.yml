@@ -143,70 +143,46 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{}"
 
-      - name: Announce to Telegram
-        if: ${{ env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
+      - name: Prepare Announcement
+        id: announce
         run: |
           BEFORE_SHA=${{ github.event.before }}
           if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
             BEFORE_SHA="HEAD~1"
           fi
 
-          CHANGED_FILES=$(git diff --name-only --diff-filter=A $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' || true)
+          # Take the first new Russian blog post from the commit (one commit = one article)
+          FILE=$(git diff --name-only --diff-filter=A $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' | head -1 || true)
 
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "No new posts in content/ru/blog/ found, skipping Telegram announcement."
+          if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then
+            echo "No new posts in content/ru/blog/ found, skipping announcement."
+            echo "has_post=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
+          SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
+          POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
 
-          for FILE in $CHANGED_FILES; do
-            if [ -f "$FILE" ]; then
-              SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-              POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
+          PROMPT="На основе содержимого следующего поста напиши короткий анонс (2-4 предложения) для канала на русском языке. Используй эмодзи для привлечения внимания. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом анонса, без пояснений и кавычек."
 
-              PROMPT="На основе содержимого следующего поста напиши короткий анонс (2-4 предложения) для Telegram-канала на русском языке. Используй эмодзи для привлечения внимания. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом анонса, без пояснений и кавычек."
+          ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE."; exit 1; }
 
-              ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE, skipping."; continue; }
+          echo "${ANNOUNCEMENT} ${POST_URL}" > "$RUNNER_TEMP/announcement.txt"
+          echo "has_post=true" >> "$GITHUB_OUTPUT"
 
-              MESSAGE="${ANNOUNCEMENT} ${POST_URL}"
-
-              curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "$(jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}')"
-            fi
-          done
+      - name: Announce to Telegram
+        if: ${{ steps.announce.outputs.has_post == 'true' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
+        run: |
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}')"
 
       - name: Announce to Max
-        if: ${{ env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
+        if: ${{ steps.announce.outputs.has_post == 'true' && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
         run: |
-          BEFORE_SHA=${{ github.event.before }}
-          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            BEFORE_SHA="HEAD~1"
-          fi
-
-          CHANGED_FILES=$(git diff --name-only --diff-filter=A $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' || true)
-
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "No new posts in content/ru/blog/ found, skipping Max announcement."
-            exit 0
-          fi
-
-          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
-
-          for FILE in $CHANGED_FILES; do
-            if [ -f "$FILE" ]; then
-              SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-              POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
-
-              PROMPT="На основе содержимого следующего поста напиши короткий анонс (2-4 предложения) для канала в Max на русском языке. Используй эмодзи для привлечения внимания. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом анонса, без пояснений и кавычек."
-
-              ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE, skipping."; continue; }
-
-              MESSAGE="${ANNOUNCEMENT} ${POST_URL}"
-
-              curl --fail --show-error -s -X POST "https://botapi.max.ru/messages?access_token=${MAX_BOT_TOKEN}&chat_id=${MAX_CHANNEL_ID}" \
-                -H "Content-Type: application/json" \
-                -d "$(jq -n --arg text "$MESSAGE" '{text: $text}')"
-            fi
-          done
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          curl --fail --show-error -s -X POST "https://botapi.max.ru/messages?access_token=${MAX_BOT_TOKEN}&chat_id=${MAX_CHANNEL_ID}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg text "$MESSAGE" '{text: $text}')"
