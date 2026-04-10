@@ -164,48 +164,11 @@ jobs:
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
           POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
 
-          EXCERPT=$(python3 - "$FILE" << 'PYEOF'
-import sys, re
+          PROMPT="Возьми первые 2-3 абзаца следующего поста как есть (без изменений) и добавь в конце фразу 'Подробнее:'. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом анонса, без пояснений и кавычек."
 
-with open(sys.argv[1]) as f:
-    content = f.read()
+          ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE."; exit 1; }
 
-# Strip frontmatter
-if content.startswith('---'):
-    end = content.find('---', 3)
-    if end != -1:
-        content = content[end+3:].lstrip('\n')
-
-# Split into paragraphs (blocks separated by blank lines)
-paragraphs = re.split(r'\n\s*\n', content)
-
-# Collect up to 2 text paragraphs (skip header-only blocks)
-text_paragraphs = []
-for p in paragraphs:
-    p = p.strip()
-    if not p:
-        continue
-    lines = [l for l in p.split('\n') if l.strip()]
-    if all(re.match(r'^#+\s*', l) for l in lines):
-        continue
-    text_paragraphs.append(p)
-    if len(text_paragraphs) >= 2:
-        break
-
-excerpt = '\n\n'.join(text_paragraphs)
-
-# Strip basic markdown formatting
-excerpt = re.sub(r'^#+\s*', '', excerpt, flags=re.MULTILINE)
-excerpt = re.sub(r'\*\*(.+?)\*\*', r'\1', excerpt)
-excerpt = re.sub(r'\*(.+?)\*', r'\1', excerpt)
-excerpt = re.sub(r'`(.+?)`', r'\1', excerpt)
-excerpt = re.sub(r'\[(.+?)\]\(.+?\)', r'\1', excerpt)
-
-print(excerpt)
-PYEOF
-          )
-
-          printf '%s\n\nПодробнее: %s\n' "$EXCERPT" "$POST_URL" > "$RUNNER_TEMP/announcement.txt"
+          printf '%s\n\n%s\n' "$ANNOUNCEMENT" "$POST_URL" > "$RUNNER_TEMP/announcement.txt"
           echo "has_post=true" >> "$GITHUB_OUTPUT"
 
       - name: Announce to Telegram
