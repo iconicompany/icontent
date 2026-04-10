@@ -186,7 +186,7 @@ for p in paragraphs:
     if not p:
         continue
     lines = [l for l in p.split('\n') if l.strip()]
-    if all(re.match(r'^#+\s', l) for l in lines):
+    if all(re.match(r'^#+\s*', l) for l in lines):
         continue
     text_paragraphs.append(p)
     if len(text_paragraphs) >= 2:
@@ -195,7 +195,7 @@ for p in paragraphs:
 excerpt = '\n\n'.join(text_paragraphs)
 
 # Strip basic markdown formatting
-excerpt = re.sub(r'^#+\s+', '', excerpt, flags=re.MULTILINE)
+excerpt = re.sub(r'^#+\s*', '', excerpt, flags=re.MULTILINE)
 excerpt = re.sub(r'\*\*(.+?)\*\*', r'\1', excerpt)
 excerpt = re.sub(r'\*(.+?)\*', r'\1', excerpt)
 excerpt = re.sub(r'`(.+?)`', r'\1', excerpt)
