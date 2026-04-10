@@ -17,6 +17,8 @@ jobs:
       TELEGRAM_CHANNEL_ID: ${{ vars.TELEGRAM_CHANNEL_ID }}
       MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
       MAX_CHANNEL_ID: ${{ vars.MAX_CHANNEL_ID }}
+      LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
+      LINKEDIN_AUTHOR: ${{ vars.LINKEDIN_AUTHOR }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -189,3 +191,24 @@ jobs:
           curl --fail --show-error -s -X POST "https://botapi.max.ru/messages?access_token=${MAX_BOT_TOKEN}&chat_id=${MAX_CHANNEL_ID}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n --arg text "$MESSAGE" '{text: $text}')"
+
+      - name: Announce to LinkedIn
+        if: ${{ steps.announce.outputs.has_post == 'true' && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
+        run: |
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          curl --fail --show-error -s -X POST "https://api.linkedin.com/v2/ugcPosts" \
+            -H "Authorization: Bearer ${LINKEDIN_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg author "${LINKEDIN_AUTHOR}" --arg text "$MESSAGE" '{
+              author: $author,
+              lifecycleState: "PUBLISHED",
+              specificContent: {
+                "com.linkedin.ugc.ShareContent": {
+                  shareCommentary: { text: $text },
+                  shareMediaCategory: "NONE"
+                }
+              },
+              visibility: {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+              }
+            }')"
