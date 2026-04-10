@@ -14,7 +14,7 @@ jobs:
       contents: write
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+      TELEGRAM_CHANNEL_ID: ${{ vars.TELEGRAM_CHANNEL_ID }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -169,9 +169,9 @@ jobs:
 
               MESSAGE="${ANNOUNCEMENT} ${POST_URL}"
 
-              curl --fail --show-error -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+              curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
                 -H "Content-Type: application/json" \
-                -d "$(jq -n --arg chat_id "${{ secrets.TELEGRAM_CHANNEL_ID }}" --arg text "$MESSAGE" '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}')"
+                -d "$(jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}')"
             fi
           done
             
