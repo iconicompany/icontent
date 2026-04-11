@@ -19,6 +19,8 @@ jobs:
       MAX_CHANNEL_ID: ${{ vars.MAX_CHANNEL_ID }}
       LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
       LINKEDIN_AUTHOR: ${{ vars.LINKEDIN_AUTHOR }}
+      MEDIUM_TOKEN: ${{ secrets.MEDIUM_TOKEN }}
+      MEDIUM_AUTHOR_ID: ${{ vars.MEDIUM_AUTHOR_ID }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -218,3 +220,61 @@ jobs:
             -H "Authorization: Bearer ${LINKEDIN_TOKEN}" \
             -H "Content-Type: application/json" \
             --data "@$RUNNER_TEMP/linkedin_payload.json"
+
+      - name: Announce to Medium
+        if: ${{ steps.announce.outputs.has_post == 'true' && env.MEDIUM_TOKEN != '' && env.MEDIUM_AUTHOR_ID != '' }}
+        run: |
+          BEFORE_SHA=${{ github.event.before }}
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE_SHA="HEAD~1"
+          fi
+
+          RU_FILE=$(git diff --name-only --diff-filter=A $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' | head -1 || true)
+
+          if [ -z "$RU_FILE" ] || [ ! -f "$RU_FILE" ]; then
+            echo "No new post found, skipping Medium announcement."
+            exit 0
+          fi
+
+          EN_FILE="${RU_FILE/content\/ru\//content\/en\/}"
+          POST_FILE="$EN_FILE"
+          [ -f "$POST_FILE" ] || POST_FILE="$RU_FILE"
+
+          POST_URL=$(tail -1 "$RUNNER_TEMP/announcement.txt")
+
+          POST_FILE="$POST_FILE" POST_URL="$POST_URL" RUNNER_TEMP_PATH="$RUNNER_TEMP" python3 << 'PYEOF'
+import json, re, os
+
+post_file = os.environ['POST_FILE']
+post_url = os.environ['POST_URL']
+runner_temp = os.environ['RUNNER_TEMP_PATH']
+
+content = open(post_file).read()
+
+# Extract title from frontmatter
+m = re.search(r'^title:\s*["\']?(.*?)["\']?\s*$', content, re.MULTILINE)
+title = m.group(1).strip('"\'') if m else ''
+
+# Strip YAML frontmatter
+if content.startswith('---'):
+    end = content.find('---', 3)
+    if end != -1:
+        content = content[end+3:].lstrip()
+
+payload = {
+    'title': title,
+    'contentFormat': 'markdown',
+    'content': content,
+    'canonicalUrl': post_url,
+    'publishStatus': 'public',
+}
+
+with open(os.path.join(runner_temp, 'medium_payload.json'), 'w') as f:
+    json.dump(payload, f)
+PYEOF
+
+          curl --fail --show-error -s \
+            -X POST "https://api.medium.com/v1/users/${MEDIUM_AUTHOR_ID}/posts" \
+            -H "Authorization: Bearer ${MEDIUM_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data "@$RUNNER_TEMP/medium_payload.json"
