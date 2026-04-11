@@ -180,35 +180,41 @@ jobs:
         if: ${{ steps.announce.outputs.has_post == 'true' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" \
+            '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}' \
+            > "$RUNNER_TEMP/telegram_payload.json"
           curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}')"
+            --data "@$RUNNER_TEMP/telegram_payload.json"
 
       - name: Announce to Max
         if: ${{ steps.announce.outputs.has_post == 'true' && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          jq -n --arg text "$MESSAGE" '{text: $text}' \
+            > "$RUNNER_TEMP/max_payload.json"
           curl --fail --show-error -s -X POST "https://botapi.max.ru/messages?access_token=${MAX_BOT_TOKEN}&chat_id=${MAX_CHANNEL_ID}" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n --arg text "$MESSAGE" '{text: $text}')"
+            --data "@$RUNNER_TEMP/max_payload.json"
 
       - name: Announce to LinkedIn
         if: ${{ steps.announce.outputs.has_post == 'true' && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          jq -n --arg author "${LINKEDIN_AUTHOR}" --arg text "$MESSAGE" '{
+            author: $author,
+            lifecycleState: "PUBLISHED",
+            specificContent: {
+              "com.linkedin.ugc.ShareContent": {
+                shareCommentary: { text: $text },
+                shareMediaCategory: "NONE"
+              }
+            },
+            visibility: {
+              "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            }
+          }' > "$RUNNER_TEMP/linkedin_payload.json"
           curl --fail --show-error -s -X POST "https://api.linkedin.com/v2/ugcPosts" \
             -H "Authorization: Bearer ${LINKEDIN_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n --arg author "${LINKEDIN_AUTHOR}" --arg text "$MESSAGE" '{
-              author: $author,
-              lifecycleState: "PUBLISHED",
-              specificContent: {
-                "com.linkedin.ugc.ShareContent": {
-                  shareCommentary: { text: $text },
-                  shareMediaCategory: "NONE"
-                }
-              },
-              visibility: {
-                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
-              }
-            }')"
+            --data "@$RUNNER_TEMP/linkedin_payload.json"
