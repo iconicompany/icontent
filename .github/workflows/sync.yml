@@ -220,9 +220,12 @@ jobs:
               "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
             }
           }' > "$RUNNER_TEMP/linkedin_payload.json"
+          CONTENT_LENGTH=$(wc -c < "$RUNNER_TEMP/linkedin_payload.json")
           curl --fail --show-error -s -X POST "https://api.linkedin.com/v2/ugcPosts" \
             -H "Authorization: Bearer ${LINKEDIN_TOKEN}" \
             -H "Content-Type: application/json" \
+            -H "X-Restli-Protocol-Version: 2.0.0" \
+            -H "Content-Length: ${CONTENT_LENGTH}" \
             --data "@$RUNNER_TEMP/linkedin_payload.json"
 
       - name: Announce to Medium
