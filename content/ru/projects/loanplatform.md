@@ -13,8 +13,6 @@ teamLink: '/ru/teams/fintech-banking'
 
 ## 🏦 Проект: Кредитный конвейер для банка
 
-## 📸 Галерея
-
 ![loanplatform-01](./loanplatform/loanplatform-01.jpg)
 ![loanplatform-02](./loanplatform/loanplatform-02.jpg)
 ![loanplatform-03](./loanplatform/loanplatform-03.jpg)
