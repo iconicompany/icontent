@@ -1,3 +1,16 @@
+---
+title: "Кредитный конвейер для банка"
+date: '2025-02-01'
+description: "Трансформация legacy-системы кредитного процесса в распределённую систему на базе микросервисов и Temporal."
+tags: ['Fintech', 'Microservices', 'Temporal', 'AI']
+authors: ['Iconicompany']
+language: 'ru'
+startDate: '2022-07'
+endDate: '2025-02'
+team: 'fintech-banking'
+teamLink: '/ru/teams/fintech-banking'
+---
+
 ## 🏦 Проект: Кредитный конвейер для банка
 
 ### 📌 Контекст (as-is состояние)
