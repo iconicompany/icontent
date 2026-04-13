@@ -85,8 +85,15 @@ jobs:
 
           for FILE in $CHANGED_CONTENT_FILES; do
             if [ -f "$FILE" ]; then
-              echo "Cleaning AI symbols in $FILE..."
-              sed -i -E -f /tmp/clean_ai.sed "$FILE"
+              case "$FILE" in
+                *.md|*.mdx|*.txt)
+                  echo "Cleaning AI symbols in $FILE..."
+                  sed -i -E -f /tmp/clean_ai.sed "$FILE"
+                  ;;
+                *)
+                  echo "Skipping AI symbol cleanup for non-text file $FILE"
+                  ;;
+              esac
             fi
           done
 
@@ -109,26 +116,36 @@ jobs:
           fi
 
           for FILE in $CHANGED_FILES; do
-            if [ -f "$FILE" ]; then
-              EN_FILE=${FILE/content\/ru\//content\/en\/}
-
-              if echo "$CHANGED_EN_FILES" | grep -qFx "$EN_FILE"; then
-                echo "Skipping $FILE — English version already provided in this commit."
-                continue
-              fi
-
-              EN_DIR=$(dirname "$EN_FILE")
-              mkdir -p "$EN_DIR"
-              
-              echo "Translating $FILE to $EN_FILE..."
-              
-              PROMPT="Translate the following markdown file from Russian to English. Maintain all markdown formatting, frontmatter, and technical terms. Provide the translation in a markdown code block. Important: in the YAML frontmatter, use double quotes (not single quotes) for all string values such as title and description, so that apostrophes in the text do not break the YAML syntax."
-              
-              llm -m litellm --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
-              
-              echo "Cleaning AI symbols in $EN_FILE..."
-              sed -i -E -f /tmp/clean_ai.sed "$EN_FILE"
+            if [ ! -f "$FILE" ]; then
+              continue
             fi
+
+            EN_FILE=${FILE/content\/ru\//content\/en\/}
+
+            if echo "$CHANGED_EN_FILES" | grep -qFx "$EN_FILE"; then
+              echo "Skipping $FILE — English version already provided in this commit."
+              continue
+            fi
+
+            EN_DIR=$(dirname "$EN_FILE")
+            mkdir -p "$EN_DIR"
+
+            case "$FILE" in
+              *.md|*.mdx|*.txt)
+                echo "Translating $FILE to $EN_FILE..."
+
+                PROMPT="Translate the following markdown file from Russian to English. Maintain all markdown formatting, frontmatter, and technical terms. Provide the translation in a markdown code block. Important: in the YAML frontmatter, use double quotes (not single quotes) for all string values such as title and description, so that apostrophes in the text do not break the YAML syntax."
+
+                llm -m litellm --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
+
+                echo "Cleaning AI symbols in $EN_FILE..."
+                sed -i -E -f /tmp/clean_ai.sed "$EN_FILE"
+                ;;
+              *)
+                echo "Copying asset $FILE to $EN_FILE..."
+                cp -f "$FILE" "$EN_FILE"
+                ;;
+            esac
           done
 
       - name: Commit and Push Translations
