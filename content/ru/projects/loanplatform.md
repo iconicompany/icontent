@@ -187,4 +187,20 @@ Temporal позволил превратить кредитный процесс
 
 > мы перестали думать о кредите как о монолите и начали думать о нём как о управляемом распределённом процессе (workflow), где каждый шаг независим, наблюдаем и восстановим.
 
+---
+
+## 📸 Галерея
+
+![loanplatform-01](./loanplatform/loanplatform-01.jpg)
+![loanplatform-02](./loanplatform/loanplatform-02.jpg)
+![loanplatform-03](./loanplatform/loanplatform-03.jpg)
+![loanplatform-04](./loanplatform/loanplatform-04.jpg)
+![loanplatform-05](./loanplatform/loanplatform-05.jpg)
+![loanplatform-06](./loanplatform/loanplatform-06.jpg)
+![loanplatform-07](./loanplatform/loanplatform-07.jpg)
+![loanplatform-08](./loanplatform/loanplatform-08.jpg)
+![loanplatform-09](./loanplatform/loanplatform-09.jpg)
+![loanplatform-10](./loanplatform/loanplatform-10.jpg)
+![loanplatform-11](./loanplatform/loanplatform-11.jpg)
+
 
