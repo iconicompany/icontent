@@ -1,50 +1,63 @@
-## 🏦 Project: Loan Conveyor for "Bystro-bank"
+---
+title: "Credit Conveyor for a Bank"
+date: '2025-02-01'
+description: "Transformation of a legacy credit process system into a distributed system based on microservices and Temporal."
+tags: ["Fintech", "Microservices", "Temporal", "AI"]
+authors: ["Iconicompany"]
+language: 'en'
+startDate: '2022-07'
+endDate: '2025-02'
+team: 'fintech-banking'
+teamLink: '/en/teams/fintech-banking'
+---
+
+## 🏦 Project: Credit Conveyor for a Bank
 
 ### 📌 Context (as-is state)
 
-We started by working on the legacy loan processing system at "Bystro-bank".
+We started by working on a legacy credit process system in a bank.
 
-The system was a classic monolith that mixed:
+The system was a classic monolith that combined:
 
 * loan application intake
 * client verification
 * collateral processing
-* loan dossier formation
+* credit dossier formation
 * deal origination
-* integrations with external services (credit bureaus, collateral registries, CRM, agent's workstation)
+* integrations with external services (Credit Bureau, collateral registers, CRM, Agent Workstation)
 
-System problems:
+System Problems:
 
 * tight coupling of modules within the monolith
 * long application processing time
 * lack of transparent stage control
 * frequent integration failures
 * inability to scale individual stages (e.g., collateral verification)
-* difficulty implementing new rules and products
+* difficulty in implementing new rules and products
 
-In essence, it was a "large data pipeline" that failed with any instability in one of its components.
+In essence, it was a "large data stream" that failed with any instability in one of its components.
 
 ---
 
 ## 🎯 Transformation Goal
 
-Our objective was:
+We set the following objectives:
 
-* to decompose the monolith into independent domain modules
-* to provide a manageable business process orchestrator
-* to increase the stability of the loan conveyor
-* to implement document processing automation using AI
-* to make the system scalable at each stage
+* decompose the monolith into independent domain modules
+* provide a managed business process orchestrator
+* increase the resilience of the credit conveyor
+* implement document processing automation using AI
+* make the system scalable at each stage
 
 ---
 
 ## 🧩 Domain Decomposition
 
-We broke down the system into independent domain contours:
+We divided the system into independent domain boundaries:
 
 ### 1. 📥 Application Intake
 
-* single entry point for applications (CRM / partners / agent's workstation)
+* single entry point for applications (CRM / partners / Agent Workstation)
 * data normalization
 * initial validation
 * application deduplication
@@ -53,14 +66,14 @@ We broke down the system into independent domain contours:
 
 ### 2. 🧾 Risk & Collateral Check
 
-* integrations with external sources (credit bureaus, registries, anti-fraud)
+* integrations with external sources (Credit Bureau, registers, anti-fraud)
 * client scoring
-* collateral property valuation
-* calculation of limits and terms
+* collateral valuation
+* limit and terms calculation
 
 ---
 
-### 3. 🤖 Document Intelligence with AI
+### 3. 🤖 Dossier Formation with AI (Document Intelligence)
 
 One of the key transformation modules.
 
@@ -73,11 +86,11 @@ We implemented an AI pipeline:
 * document classification
 * extraction of key fields (full name, amounts, dates, collateral objects)
 * dossier completeness check
-* automatic generation of structured loan dossiers
+* automatic generation of a structured credit dossier
 
 Result:
 
-* reduction in manual document review
+* reduction in manual document verification
 * reduction of errors during dossier formation
 * acceleration of the deal preparation stage
 
@@ -86,17 +99,17 @@ Result:
 ### 4. 📦 Case Assembly Module
 
 * collection of all verification results
-* aggregation of data from different domains
+* data aggregation from different domains
 * construction of a unified credit case
-* data completeness control before final decision
+* data completeness control before the final decision
 
 ---
 
 ### 5. ✍️ Deal Origination
 
-* generation of agreements and loan documents
-* integration with EDO (Electronic Document Interchange)
-* final agreement on terms
+* generation of agreements and credit documents
+* integration with EDM (Electronic Document Management)
+* final approval of terms
 * deal recording in the bank's accounting systems
 
 ---
@@ -116,7 +129,7 @@ We used Temporal as the core of process management:
 * recovery after failures
 * idempotency of operations
 
-Temporal allowed us to transform the loan process into an observable state machine, rather than "a script that sometimes fails".
+Temporal allowed us to transform the credit process into an **observable state machine**, rather than a "script that sometimes fails".
 
 ---
 
@@ -127,14 +140,14 @@ The entire system was deployed on Kubernetes:
 * each domain module - a separate deployment
 * horizontal scaling:
 
-* OCR/AI separately
-* risk scoring separately
-* integrations separately
+* OCR/AI independently
+* risk scoring independently
+* integrations independently
 * fault isolation between services
 
 ---
 
-### 🧱 Microservices Architecture
+### 🧱 Microservice Architecture
 
 Each domain became a separate service:
 
@@ -152,18 +165,18 @@ Communications:
 
 ---
 
-## 🔄 How the Process Looks (End-to-End)
+## 🔄 The Process (end-to-end)
 
 1. A loan application is received
 2. Temporal initiates a workflow
 3. In parallel:
 
-* client is verified
-* collateral is appraised
-* AI document processing is launched
-4. Data flows into Case Assembly
+* the client is checked
+* collateral is evaluated
+* AI document processing is initiated
+4. Data converges in Case Assembly
 5. Completeness and consistency are checked
-6. If all is OK - deal origination is launched
+6. If all is well, deal origination is launched
 7. The deal is recorded in the bank's systems
 
 ---
@@ -172,12 +185,12 @@ Communications:
 
 After transitioning to the new architecture:
 
-* loan application processing time was significantly reduced
-* process stability increased (no "conveyor failures")
+* significantly reduced application processing time
+* increased process stability (no "conveyor failures")
 * individual stages can be scaled independently
-* the introduction of new loan products accelerated
-* full traceability of each loan became available
-* manual document processing workload significantly decreased
+* implementation of new credit products accelerated
+* full traceability of each loan was achieved
+* manual document processing workload significantly reduced
 
 ---
 
@@ -185,7 +198,7 @@ After transitioning to the new architecture:
 
 The most important change was not technological, but conceptual:
 
-> we stopped thinking about a loan as a monolith and started thinking about it as a managed distributed process (workflow), where each step is independent, observable, and recoverable.
+> we stopped thinking about credit as a monolith and started thinking about it as a managed distributed process (workflow), where each step is independent, observable, and recoverable.
 
 ---
 
