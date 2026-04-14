@@ -188,8 +188,9 @@ jobs:
 
           ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE."; exit 1; }
 
-          # Strip any remaining markdown formatting just in case
+          # Strip any remaining markdown formatting and AI-style symbols just in case
           ANNOUNCEMENT=$(printf '%s' "$ANNOUNCEMENT" | sed 's/\*\*//g; s/\*//g; s/__//g; s/^[[:space:]]*#\+[[:space:]]*//; s/^[[:space:]]*-[[:space:]]*/- /g')
+          ANNOUNCEMENT=$(printf '%s' "$ANNOUNCEMENT" | sed -E 's/•/-/g; s/—/-/g; s/–/-/g; s/[“”]/"/g; s/[‘’]/'\''/g; s/…/.../g; s/×/x/g; s/°/o/g')
 
           printf '%s\n\n%s\n' "$ANNOUNCEMENT" "$POST_URL" > "$RUNNER_TEMP/announcement.txt"
 
