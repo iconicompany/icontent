@@ -54,22 +54,35 @@ jobs:
           }
           EOF
 
-      - name: Update date in new content files
+      - name: Collect changed files
+        id: files
         run: |
-          TODAY=$(date -u +%Y-%m-%d)
           BEFORE_SHA=${{ github.event.before }}
           if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
             BEFORE_SHA="HEAD~1"
           fi
 
-          NEW_FILES=$(git diff --name-only --diff-filter=A $BEFORE_SHA ${{ github.sha }} | grep '^content/' || true)
+          git diff --name-only "$BEFORE_SHA" ${{ github.sha }} | grep '^content/' > "$RUNNER_TEMP/changed_content.txt" || true
+          git diff --name-only --diff-filter=A "$BEFORE_SHA" ${{ github.sha }} | grep '^content/' > "$RUNNER_TEMP/new_content.txt" || true
+          git diff --name-only "$BEFORE_SHA" ${{ github.sha }} | grep '^content/ru/' > "$RUNNER_TEMP/changed_ru.txt" || true
+          git diff --name-only "$BEFORE_SHA" ${{ github.sha }} | grep '^content/en/' > "$RUNNER_TEMP/changed_en.txt" || true
 
-          if [ -z "$NEW_FILES" ]; then
+          NEW_RU_BLOG=$(git diff --name-only --diff-filter=A "$BEFORE_SHA" ${{ github.sha }} | grep '^content/ru/blog/' | head -1 || true)
+          echo "new_ru_blog_file=$NEW_RU_BLOG" >> "$GITHUB_OUTPUT"
+
+          echo "Changed content files:"; cat "$RUNNER_TEMP/changed_content.txt"
+          echo "New content files:"; cat "$RUNNER_TEMP/new_content.txt"
+
+      - name: Update date in new content files
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+
+          if [ ! -s "$RUNNER_TEMP/new_content.txt" ]; then
             echo "No new files in content/ found."
             exit 0
           fi
 
-          for FILE in $NEW_FILES; do
+          while IFS= read -r FILE; do
             if [ -f "$FILE" ]; then
               case "$FILE" in
                 *.md|*.mdx)
@@ -78,15 +91,10 @@ jobs:
                   ;;
               esac
             fi
-          done
+          done < "$RUNNER_TEMP/new_content.txt"
 
       - name: Clean AI symbols in changed files
         run: |
-          BEFORE_SHA=${{ github.event.before }}
-          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            BEFORE_SHA="HEAD~1"
-          fi
-
           printf '%s\n' \
             's/•/-/g' \
             's/—/-/g' \
@@ -101,14 +109,12 @@ jobs:
             's/[[:space:]]+$//g' \
             > /tmp/clean_ai.sed
 
-          CHANGED_CONTENT_FILES=$(git diff --name-only $BEFORE_SHA ${{ github.sha }} | grep '^content/' || true)
-
-          if [ -z "$CHANGED_CONTENT_FILES" ]; then
+          if [ ! -s "$RUNNER_TEMP/changed_content.txt" ]; then
             echo "No changes in content/ found."
             exit 0
           fi
 
-          for FILE in $CHANGED_CONTENT_FILES; do
+          while IFS= read -r FILE; do
             if [ -f "$FILE" ]; then
               case "$FILE" in
                 *.md|*.mdx|*.txt)
@@ -120,20 +126,12 @@ jobs:
                   ;;
               esac
             fi
-          done
+          done < "$RUNNER_TEMP/changed_content.txt"
 
       - name: Translate Changed Russian Files
         run: |
-          # Get list of changed files in content/ru
-          # When triggered by push, github.event.before is the previous commit.
-          # If it's the first push of a branch, github.event.before might be zeros.
-          BEFORE_SHA=${{ github.event.before }}
-          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            BEFORE_SHA="HEAD~1"
-          fi
-          
-          CHANGED_FILES=$(git diff --name-only $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/' || true)
-          CHANGED_EN_FILES=$(git diff --name-only $BEFORE_SHA ${{ github.sha }} | grep '^content/en/' || true)
+          CHANGED_FILES=$(cat "$RUNNER_TEMP/changed_ru.txt" || true)
+          CHANGED_EN_FILES=$(cat "$RUNNER_TEMP/changed_en.txt" || true)
           
           if [ -z "$CHANGED_FILES" ]; then
             echo "No changes in content/ru/ found."
@@ -192,13 +190,8 @@ jobs:
       - name: Prepare Announcement
         id: announce
         run: |
-          BEFORE_SHA=${{ github.event.before }}
-          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            BEFORE_SHA="HEAD~1"
-          fi
-
           # Take the first new Russian blog post from the commit (one commit = one article)
-          FILE=$(git diff --name-only --diff-filter=A $BEFORE_SHA ${{ github.sha }} | grep '^content/ru/blog/' | head -1 || true)
+          FILE="${{ steps.files.outputs.new_ru_blog_file }}"
 
           if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then
             echo "No new posts in content/ru/blog/ found, skipping announcement."
