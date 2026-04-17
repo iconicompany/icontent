@@ -189,10 +189,37 @@ jobs:
             -H "Content-Type: application/json" \
             --data "@$RUNNER_TEMP/max_payload.json"
 
+      - name: Prepare LinkedIn Announcement
+        id: linkedin_announce
+        if: ${{ steps.announce.outputs.has_post == 'true' && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
+        run: |
+          FILE="${{ steps.files.outputs.new_post }}"
+          POST_URL="${{ steps.announce.outputs.post_url }}"
+
+          PROMPT="Напиши вирусный пост для LinkedIn на русском языке по мотивам этой статьи. Структура: 1) Мощный крючок — первая строка, которая цепляет и заставляет нажать 'ещё' (провокационный вопрос, неожиданный факт или смелое утверждение). 2) История или инсайт из 3-5 коротких абзацев (каждый абзац — 1-2 предложения, пустая строка между абзацами). 3) Главный вывод или призыв к действию. 4) 3-5 релевантных хэштегов. Пиши живым разговорным языком, избегай корпоративных клише. Не используй markdown-разметку: никаких **, *, _, #. Добавь 2-4 эмодзи по смыслу. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом поста, без пояснений и кавычек."
+
+          LI_ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate LinkedIn announcement."; exit 1; }
+
+          LI_ANNOUNCEMENT=$(printf '%s' "$LI_ANNOUNCEMENT" | sed -E \
+            -e 's/\*\*//g' \
+            -e 's/\*//g' \
+            -e 's/__//g' \
+            -e 's/^[[:space:]]*#+[[:space:]]*//' \
+            -e 's/•/-/g' \
+            -e 's/—/-/g' \
+            -e 's/–/-/g' \
+            -e 's/[""]/"/g' \
+            -e "s/['']/'/g" \
+            -e 's/…/.../g' \
+            -e 's/×/x/g' \
+            -e 's/°/o/g')
+
+          printf '%s\n\n%s\n' "$LI_ANNOUNCEMENT" "$POST_URL" > "$RUNNER_TEMP/linkedin_announcement.txt"
+
       - name: Announce to LinkedIn
         if: ${{ steps.announce.outputs.has_post == 'true' && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          MESSAGE=$(cat "$RUNNER_TEMP/linkedin_announcement.txt")
           jq -n --arg author "${LINKEDIN_AUTHOR}" --arg text "$MESSAGE" '{
             author: $author,
             lifecycleState: "PUBLISHED",
