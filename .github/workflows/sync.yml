@@ -21,6 +21,8 @@ jobs:
       LINKEDIN_AUTHOR: ${{ vars.LINKEDIN_AUTHOR }}
       MEDIUM_TOKEN: ${{ secrets.MEDIUM_TOKEN }}
       MEDIUM_AUTHOR_ID: ${{ vars.MEDIUM_AUTHOR_ID }}
+      THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+      THREADS_USER_ID: ${{ vars.THREADS_USER_ID }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -233,3 +235,19 @@ jobs:
             -H "Authorization: Bearer ${MEDIUM_TOKEN}" \
             -H "Content-Type: application/json" \
             --data "@$RUNNER_TEMP/medium_payload.json"
+
+      - name: Announce to Threads
+        if: ${{ steps.announce.outputs.has_post == 'true' && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
+        run: |
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
+          CREATION_ID=$(curl --fail --show-error -s \
+            -X POST "https://graph.threads.net/v1.0/${THREADS_USER_ID}/threads" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg text "$MESSAGE" '{media_type: "TEXT", text: $text}')" \
+            -H "Authorization: Bearer ${THREADS_TOKEN}" \
+            | jq -r '.id')
+          curl --fail --show-error -s \
+            -X POST "https://graph.threads.net/v1.0/${THREADS_USER_ID}/threads_publish" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg id "$CREATION_ID" '{creation_id: $id}')" \
+            -H "Authorization: Bearer ${THREADS_TOKEN}"
