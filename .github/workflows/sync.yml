@@ -246,11 +246,7 @@ jobs:
       - name: Announce to Threads
         if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
         run: |
-          if [ "${THREADS_LANG}" = "ru" ]; then
-            MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
-          else
-            MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
-          fi
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement_${THREADS_LANG}.txt")
           CREATION_ID=$(curl --fail --show-error -s \
             -X POST "https://graph.threads.net/v1.0/${THREADS_USER_ID}/threads" \
             -H "Content-Type: application/json" \
