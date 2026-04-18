@@ -23,6 +23,7 @@ jobs:
       MEDIUM_AUTHOR_ID: ${{ vars.MEDIUM_AUTHOR_ID }}
       THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
       THREADS_USER_ID: ${{ vars.THREADS_USER_ID }}
+      THREADS_LANG: ${{ vars.THREADS_LANG || 'en' }}
       TELEGRAM_ENGLISH_CHANNEL_ID: ${{ vars.TELEGRAM_ENGLISH_CHANNEL_ID }}
       X_TOKEN: ${{ secrets.X_TOKEN }}
       X_USER_ID: ${{ vars.X_USER_ID }}
@@ -243,7 +244,7 @@ jobs:
             --data "@$RUNNER_TEMP/telegram_en_payload.json"
 
       - name: Announce English Post to Threads
-        if: ${{ steps.announce_en.outputs.has_post == 'true' && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
+        if: ${{ steps.announce_en.outputs.has_post == 'true' && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' && env.THREADS_LANG != 'ru' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
           CREATION_ID=$(curl --fail --show-error -s \
@@ -324,7 +325,7 @@ jobs:
             --data "@$RUNNER_TEMP/medium_payload.json"
 
       - name: Announce to Threads
-        if: ${{ steps.announce.outputs.has_post == 'true' && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
+        if: ${{ steps.announce.outputs.has_post == 'true' && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' && env.THREADS_LANG == 'ru' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement.txt")
           CREATION_ID=$(curl --fail --show-error -s \
