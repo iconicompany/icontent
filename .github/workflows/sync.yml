@@ -23,6 +23,7 @@ jobs:
       MEDIUM_AUTHOR_ID: ${{ vars.MEDIUM_AUTHOR_ID }}
       THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
       THREADS_USER_ID: ${{ vars.THREADS_USER_ID }}
+      TELEGRAM_ENGLISH_CHANNEL_ID: ${{ vars.TELEGRAM_ENGLISH_CHANNEL_ID }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -170,6 +171,53 @@ jobs:
           echo "post_title=$TITLE" >> "$GITHUB_OUTPUT"
           echo "post_url=$POST_URL" >> "$GITHUB_OUTPUT"
 
+      - name: Prepare English Announcement
+        id: announce_en
+        run: |
+          FILE="${{ steps.files.outputs.new_post }}"
+
+          if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then
+            echo "No new posts found, skipping English announcement."
+            echo "has_post=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          EN_FILE="${FILE/content\/ru\//content\/en\/}"
+
+          if [ ! -f "$EN_FILE" ]; then
+            echo "English translation not found at $EN_FILE, skipping English announcement."
+            echo "has_post=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
+          SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
+          EN_POST_URL="${SITE_BASE_URL}/en/blog/${SLUG}"
+
+          PROMPT="Write a viral post based on this article. Structure: 1) A powerful hook - the first line that grabs attention and makes people click 'more' (a provocative question, unexpected fact, or bold statement). 2) A story or insight in 3-5 short paragraphs (each paragraph 1-2 sentences, blank line between paragraphs). 3) The main takeaway or call to action. 4) 3-5 relevant hashtags. Write in a lively conversational style, avoid corporate clichés. Do not use markdown formatting: no **, *, _, #. Add 2-4 relevant emojis. Do not add a URL - it will be appended automatically. Reply with only the post text, no explanations or quotes."
+
+          ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$EN_FILE" -x) || { echo "Failed to generate English announcement."; exit 1; }
+
+          ANNOUNCEMENT=$(printf '%s' "$ANNOUNCEMENT" | sed -E \
+            -e 's/\*\*//g' \
+            -e 's/\*//g' \
+            -e 's/__//g' \
+            -e 's/^[[:space:]]*#+[[:space:]]*//' \
+            -e 's/^[[:space:]]*-[[:space:]]*/- /g' \
+            -e 's/•/-/g' \
+            -e 's/—/-/g' \
+            -e 's/–/-/g' \
+            -e 's/[""]/"/g' \
+            -e "s/['']/'/g" \
+            -e 's/…/.../g' \
+            -e 's/×/x/g' \
+            -e 's/°/o/g')
+
+          printf '%s\n\n%s\n' "$ANNOUNCEMENT" "$EN_POST_URL" > "$RUNNER_TEMP/announcement_en.txt"
+
+          echo "has_post=true" >> "$GITHUB_OUTPUT"
+          echo "post_url=$EN_POST_URL" >> "$GITHUB_OUTPUT"
+
       - name: Announce to Telegram
         if: ${{ steps.announce.outputs.has_post == 'true' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
         run: |
@@ -180,6 +228,17 @@ jobs:
           curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
             --data "@$RUNNER_TEMP/telegram_payload.json"
+
+      - name: Announce English Post to Telegram
+        if: ${{ steps.announce_en.outputs.has_post == 'true' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
+        run: |
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
+          jq -n --arg chat_id "${TELEGRAM_ENGLISH_CHANNEL_ID}" --arg text "$MESSAGE" \
+            '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}' \
+            > "$RUNNER_TEMP/telegram_en_payload.json"
+          curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            --data "@$RUNNER_TEMP/telegram_en_payload.json"
 
       - name: Announce to Max
         if: ${{ steps.announce.outputs.has_post == 'true' && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
