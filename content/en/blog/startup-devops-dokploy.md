@@ -62,3 +62,8 @@ We got:
 
 For MVPs and early-stage startups - a **real must-have** if you want fast, cheap, and without future migration headaches.
 
+---
+
+## 📚 Read also
+
+- [Your Own CMS on GitHub: How Copilot Helps Write, Publish, and Announce Content](copilot-cms-github-vibe-coding)
