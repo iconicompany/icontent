@@ -66,4 +66,4 @@ authors: ['slavb18']
 
 ## 📚 Читайте также
 
-- [Собственная CMS на GitHub: как Copilot помогает писать, публиковать и анонсировать контент](../copilot-cms-github-vibe-coding)
+- [Собственная CMS на GitHub: как Copilot помогает писать, публиковать и анонсировать контент](copilot-cms-github-vibe-coding)

@@ -66,4 +66,4 @@ For MVPs and early-stage startups - a **real must-have** if you want fast, cheap
 
 ## 📚 Read also
 
-- [Your Own CMS on GitHub: How Copilot Helps Write, Publish, and Announce Content](../copilot-cms-github-vibe-coding)
+- [Your Own CMS on GitHub: How Copilot Helps Write, Publish, and Announce Content](copilot-cms-github-vibe-coding)
