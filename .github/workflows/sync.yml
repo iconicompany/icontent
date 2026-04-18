@@ -24,6 +24,8 @@ jobs:
       THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
       THREADS_USER_ID: ${{ vars.THREADS_USER_ID }}
       TELEGRAM_ENGLISH_CHANNEL_ID: ${{ vars.TELEGRAM_ENGLISH_CHANNEL_ID }}
+      X_TOKEN: ${{ secrets.X_TOKEN }}
+      X_USER_ID: ${{ vars.X_USER_ID }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -194,7 +196,7 @@ jobs:
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
           EN_POST_URL="${SITE_BASE_URL}/en/blog/${SLUG}"
 
-          PROMPT="Write a viral post based on this article. Structure: 1) A powerful hook - the first line that grabs attention and makes people click 'more' (a provocative question, unexpected fact, or bold statement). 2) A story or insight in 3-5 short paragraphs (each paragraph 1-2 sentences, blank line between paragraphs). 3) The main takeaway or call to action. 4) 3-5 relevant hashtags. Write in a lively conversational style, avoid corporate clichés. Do not use markdown formatting: no **, *, _, #. Add 2-4 relevant emojis. Do not add a URL - it will be appended automatically. Reply with only the post text, no explanations or quotes."
+          PROMPT="Write a viral post based on this article. Keep the entire post strictly under 500 characters (including spaces, emojis, and hashtags) - this is a hard limit for Threads and X. Structure: 1) A powerful hook - the first line that grabs attention. 2) 1-2 sentences of key insight. 3) One clear takeaway or call to action. 4) 2-3 relevant hashtags. Write in a lively conversational style, avoid corporate clichés. Do not use markdown formatting: no **, *, _, #. Add 1-2 relevant emojis. Do not add a URL - it will be appended automatically. Reply with only the post text, no explanations or quotes."
 
           ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$EN_FILE" -x) || { echo "Failed to generate English announcement."; exit 1; }
 
@@ -213,7 +215,7 @@ jobs:
             -e 's/×/x/g' \
             -e 's/°/o/g')
 
-          printf '%s\n\n%s\n\n👉 https://t.me/iconicompany\n' "$ANNOUNCEMENT" "$EN_POST_URL" > "$RUNNER_TEMP/announcement_en.txt"
+          printf '%s\n\n%s\n' "$ANNOUNCEMENT" "$EN_POST_URL" > "$RUNNER_TEMP/announcement_en.txt"
 
           echo "has_post=true" >> "$GITHUB_OUTPUT"
           echo "post_url=$EN_POST_URL" >> "$GITHUB_OUTPUT"
@@ -239,6 +241,32 @@ jobs:
           curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
             --data "@$RUNNER_TEMP/telegram_en_payload.json"
+
+      - name: Announce English Post to Threads
+        if: ${{ steps.announce_en.outputs.has_post == 'true' && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
+        run: |
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
+          CREATION_ID=$(curl --fail --show-error -s \
+            -X POST "https://graph.threads.net/v1.0/${THREADS_USER_ID}/threads" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg text "$MESSAGE" '{media_type: "TEXT", text: $text}')" \
+            -H "Authorization: Bearer ${THREADS_TOKEN}" \
+            | jq -r '.id')
+          curl --fail --show-error -s \
+            -X POST "https://graph.threads.net/v1.0/${THREADS_USER_ID}/threads_publish" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg id "$CREATION_ID" '{creation_id: $id}')" \
+            -H "Authorization: Bearer ${THREADS_TOKEN}"
+
+      - name: Announce English Post to X
+        if: ${{ steps.announce_en.outputs.has_post == 'true' && env.X_TOKEN != '' }}
+        run: |
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
+          curl --fail --show-error -s \
+            -X POST "https://api.twitter.com/2/tweets" \
+            -H "Authorization: Bearer ${X_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg text "$MESSAGE" '{text: $text}')"
 
       - name: Announce to Max
         if: ${{ steps.announce.outputs.has_post == 'true' && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
