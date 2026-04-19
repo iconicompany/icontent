@@ -68,7 +68,7 @@ jobs:
             BEFORE_SHA="HEAD~1"
           fi
 
-          FILE=$(git diff --name-only --diff-filter=A "$BEFORE_SHA" ${{ github.sha }} | grep '^content/ru/blog/' | head -1 || true)
+          FILE=$(git diff --name-only --diff-filter=A "$BEFORE_SHA" ${{ github.sha }} | grep -E '^content/ru/blog/.*\.(md|mdx)$' | head -1 || true)
           echo "new_post=$FILE" >> "$GITHUB_OUTPUT"
           echo "New post: $FILE"
 
@@ -109,6 +109,11 @@ jobs:
           mkdir -p "$EN_DIR"
 
           PROMPT="Translate the following markdown file from Russian to English. Maintain all markdown formatting, frontmatter, and technical terms. Provide the translation in a markdown code block. Important: in the YAML frontmatter, use double quotes (not single quotes) for all string values such as title and description, so that apostrophes in the text do not break the YAML syntax."
+
+          if ! file --mime-type "$FILE" | grep -q 'text/'; then
+            echo "Skipping non-text file: $FILE"
+            exit 0
+          fi
 
           echo "Translating $FILE to $EN_FILE..."
           llm -m litellm --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
