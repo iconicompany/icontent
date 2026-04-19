@@ -125,27 +125,6 @@ jobs:
           echo "Cleaning AI symbols in $EN_FILE..."
           sed -i -E -f /tmp/clean_ai.sed "$EN_FILE"
 
-      - name: Publish English Article to Telegraph
-        if: ${{ steps.files.outputs.new_post != '' && env.TELEGRAPH_ACCESS_TOKEN != '' }}
-        run: |
-          set -e
-          FILE="${{ steps.files.outputs.new_post }}"
-          EN_FILE="${FILE/content\/ru\//content\/en\/}"
-          SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
-
-          if [ ! -f "$EN_FILE" ]; then
-            echo "English translation not found at $EN_FILE, skipping Telegraph publication."
-            exit 0
-          fi
-
-          echo "Publishing $EN_FILE to Telegraph..."
-          TELEGRAPH_URL=$(SITE_BASE_URL="$SITE_BASE_URL" python scripts/publish_telegraph.py "$EN_FILE" "$SLUG")
-
-          if [ -n "$TELEGRAPH_URL" ]; then
-            echo "Published to Telegraph: $TELEGRAPH_URL"
-          fi
-
       - name: Commit and Push Translations
         run: |
           git config --global user.name "github-actions[bot]"
@@ -355,3 +334,23 @@ jobs:
             -H "Content-Type: application/json" \
             --data "@$RUNNER_TEMP/medium_payload.json"
 
+      - name: Publish English Article to Telegraph
+        if: ${{ steps.files.outputs.new_post != '' && env.TELEGRAPH_ACCESS_TOKEN != '' }}
+        run: |
+          set -e
+          FILE="${{ steps.files.outputs.new_post }}"
+          EN_FILE="${FILE/content\/ru\//content\/en\/}"
+          SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
+          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
+
+          if [ ! -f "$EN_FILE" ]; then
+            echo "English translation not found at $EN_FILE, skipping Telegraph publication."
+            exit 0
+          fi
+
+          echo "Publishing $EN_FILE to Telegraph..."
+          TELEGRAPH_URL=$(SITE_BASE_URL="$SITE_BASE_URL" python scripts/publish_telegraph.py "$EN_FILE" "$SLUG")
+
+          if [ -n "$TELEGRAPH_URL" ]; then
+            echo "Published to Telegraph: $TELEGRAPH_URL"
+          fi
