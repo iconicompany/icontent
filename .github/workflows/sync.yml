@@ -29,6 +29,7 @@ jobs:
       X_USER_ID: ${{ vars.X_USER_ID }}
       TELEGRAM_CHANNEL_URL: ${{ vars.TELEGRAM_CHANNEL_URL }}
       MAX_CHANNEL_URL: ${{ vars.MAX_CHANNEL_URL }}
+      DZEN_CHANNEL_URL: ${{ vars.DZEN_CHANNEL_URL }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
