@@ -31,6 +31,7 @@ jobs:
       MAX_CHANNEL_URL: ${{ vars.MAX_CHANNEL_URL }}
       DZEN_CHANNEL_URL: ${{ vars.DZEN_CHANNEL_URL }}
       TELEGRAPH_ACCESS_TOKEN: ${{ secrets.TELEGRAPH_ACCESS_TOKEN }}
+      SITE_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -152,7 +153,6 @@ jobs:
             exit 0
           fi
 
-          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
           POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
 
@@ -203,7 +203,6 @@ jobs:
             exit 0
           fi
 
-          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
           EN_POST_URL="${SITE_BASE_URL}/en/blog/${SLUG}"
 
@@ -341,7 +340,6 @@ jobs:
           FILE="${{ steps.files.outputs.new_post }}"
           EN_FILE="${FILE/content\/ru\//content\/en\/}"
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
 
           if [ ! -f "$EN_FILE" ]; then
             echo "English translation not found at $EN_FILE, skipping Telegraph publication."
@@ -349,7 +347,7 @@ jobs:
           fi
 
           echo "Publishing $EN_FILE to Telegraph..."
-          TELEGRAPH_URL=$(SITE_BASE_URL="$SITE_BASE_URL" python scripts/publish_telegraph.py "$EN_FILE" "$SLUG")
+          TELEGRAPH_URL=$(python scripts/publish_telegraph.py "$EN_FILE" "$SLUG")
 
           if [ -n "$TELEGRAPH_URL" ]; then
             echo "Published to Telegraph: $TELEGRAPH_URL"
