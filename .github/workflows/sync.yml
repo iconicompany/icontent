@@ -174,9 +174,8 @@ jobs:
             -e 's/×/x/g' \
             -e 's/°/o/g')
 
-          printf '%s\n\n👉 Статья: %s\n' "$ANNOUNCEMENT" "$POST_URL" > "$RUNNER_TEMP/announcement_ru.txt"
+          printf '%s\n\n👉 Статья: %s\n\n📢 %s\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_ru.txt"
           printf '%s\n\n<a href="%s">👉 Читать статью</a>\n<a href="%s">@iconicompany</a>\n<a href="%s">Мы в Max</a>\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" "${MAX_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_telegram.txt"
-          printf '%s\n\n👉 %s\n' "$ANNOUNCEMENT" "${TELEGRAM_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_linkedin.txt"
 
           TITLE=$(grep -m1 '^title:' "$FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"'"'" || true)
           echo "has_post=true" >> "$GITHUB_OUTPUT"
@@ -291,7 +290,7 @@ jobs:
       - name: Announce to LinkedIn
         if: ${{ steps.announce.outputs.has_post == 'true' && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_linkedin.txt")
+          MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
           jq -n --arg author "${LINKEDIN_AUTHOR}" --arg text "$MESSAGE" '{
             author: $author,
             lifecycleState: "PUBLISHED",
