@@ -30,6 +30,7 @@ jobs:
       TELEGRAM_CHANNEL_URL: ${{ vars.TELEGRAM_CHANNEL_URL }}
       MAX_CHANNEL_URL: ${{ vars.MAX_CHANNEL_URL }}
       DZEN_CHANNEL_URL: ${{ vars.DZEN_CHANNEL_URL }}
+      TELEGRAPH_ACCESS_TOKEN: ${{ secrets.TELEGRAPH_ACCESS_TOKEN }}
 
     steps:
       #- uses: oven-sh/setup-bun@v2
@@ -44,7 +45,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install LLM
-        run: pip install llm
+        run: pip install llm "markdown==3.7"
 
       - name: Configure LLM
         run: |
@@ -123,6 +124,27 @@ jobs:
 
           echo "Cleaning AI symbols in $EN_FILE..."
           sed -i -E -f /tmp/clean_ai.sed "$EN_FILE"
+
+      - name: Publish English Article to Telegraph
+        if: ${{ steps.files.outputs.new_post != '' && env.TELEGRAPH_ACCESS_TOKEN != '' }}
+        run: |
+          set -e
+          FILE="${{ steps.files.outputs.new_post }}"
+          EN_FILE="${FILE/content\/ru\//content\/en\/}"
+          SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
+          SITE_BASE_URL="${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}"
+
+          if [ ! -f "$EN_FILE" ]; then
+            echo "English translation not found at $EN_FILE, skipping Telegraph publication."
+            exit 0
+          fi
+
+          echo "Publishing $EN_FILE to Telegraph..."
+          TELEGRAPH_URL=$(SITE_BASE_URL="$SITE_BASE_URL" python scripts/publish_telegraph.py "$EN_FILE" "$SLUG")
+
+          if [ -n "$TELEGRAPH_URL" ]; then
+            echo "Published to Telegraph: $TELEGRAPH_URL"
+          fi
 
       - name: Commit and Push Translations
         run: |
