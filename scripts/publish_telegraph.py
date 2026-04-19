@@ -137,6 +137,7 @@ def main():
 
     site_base = os.environ.get("SITE_BASE_URL", "https://iconicompany.com").rstrip("/")
     original_url = f"{site_base}/ru/blog/{ru_slug}"
+    en_url = f"{site_base}/en/blog/{ru_slug}"
 
     frontmatter, body = parse_mdx(en_file)
     title = extract_title(frontmatter)
@@ -146,9 +147,10 @@ def main():
         extensions=["tables", "fenced_code"],
     )
 
-    # Append a link to the original Russian article.
+    # Append links to the English and original Russian articles.
     original_link_html = (
-        f'<p><a href="{original_url}">Read original in Russian</a></p>'
+        f'<p><a href="{en_url}">Read in English</a> | '
+        f'<a href="{original_url}">Read original in Russian</a></p>'
     )
     full_html = html_body + "\n" + original_link_html
 
