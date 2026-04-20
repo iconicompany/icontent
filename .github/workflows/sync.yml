@@ -46,8 +46,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install LLM
-        run: pip install llm "markdown==3.7"
-
+        run: pip install llm "markdown==3.7" requests
       - name: Configure LLM
         run: |
           mkdir -p ~/.config/io.datasette.llm
