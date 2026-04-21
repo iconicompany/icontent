@@ -133,4 +133,7 @@ $FORMATTED_CONTENT
 $READ_ALSO
 EOF
 
+# Clean up AI symbols
+bash scripts/clean-symbols.sh "$FILENAME"
+
 echo "✅ Done! Post created at $FILENAME"
