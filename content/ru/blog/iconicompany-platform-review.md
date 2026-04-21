@@ -20,7 +20,7 @@ language: 'ru'
 
 ## 1. Вакансии появляются сами
 
-![Вакансии в системе](./iconicompany/01-jobs.png)
+![Вакансии в системе](../../../assets/iconicompany/01-jobs.png)
 
 Вместо ручного создания - система автоматически собирает вакансии из Telegram-каналов.
 Можно добавить вручную, но в реальности - поток уже есть.
@@ -32,7 +32,7 @@ language: 'ru'
 
 ## 2. Кандидаты через 1 минуту (не по ключевым словам)
 
-![Офферы и карточки кандидатов](./iconicompany/02-offerscards.png)
+![Офферы и карточки кандидатов](../../../assets/iconicompany/02-offerscards.png)
 
 Через минуту после публикации - список кандидатов.
 
@@ -49,7 +49,7 @@ language: 'ru'
 
 ## 3. 100% match - не маркетинг, а модель
 
-![100% совпадение кандидата](./iconicompany/03-candidate100.png)
+![100% совпадение кандидата](../../../assets/iconicompany/03-candidate100.png)
 
 Каждому кандидату считается **Match Score**.
 
@@ -63,7 +63,7 @@ language: 'ru'
 
 ## 4. Сравнение = принятие решения
 
-![Сравнение кандидатов](./iconicompany/04-candidatematch.png)
+![Сравнение кандидатов](../../../assets/iconicompany/04-candidatematch.png)
 
 Если кандидатов несколько - включается режим сравнения.
 
@@ -80,7 +80,7 @@ language: 'ru'
 
 ## 5. Система сама уточняет опыт
 
-![Кандидат с 70% совпадением](./iconicompany/05-candudate70.png)
+![Кандидат с 70% совпадением](../../../assets/iconicompany/05-candudate70.png)
 
 Резюме всегда неполное.
 И почти всегда устаревшее.
@@ -95,9 +95,9 @@ language: 'ru'
 
 ## 6. Кандидат дополняет себя сам
 
-![Вопросы кандидату](./iconicompany/06-candidate_questions.png)
+![Вопросы кандидату](../../../assets/iconicompany/06-candidate_questions.png)
 
-![Ответ кандидата](./iconicompany/07-condadate_response.png)
+![Ответ кандидата](../../../assets/iconicompany/07-condadate_response.png)
 
 После лайка кандидат получает ссылку
 и дополняет профиль:
@@ -112,7 +112,7 @@ language: 'ru'
 
 ## 7. Голосовой AI вместо первичного интервью
 
-![Голосовой скрининг TalentVoice](./iconicompany/09-talentvoice.jpg)
+![Голосовой скрининг TalentVoice](../../../assets/iconicompany/09-talentvoice.jpg)
 
 Финальный этап - голосовой скрининг.
 
