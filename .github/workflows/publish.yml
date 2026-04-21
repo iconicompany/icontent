@@ -1,0 +1,16 @@
+name: Manual Trigger Workflow with loglevel & tags
+#get log & tags information
+on:
+  workflow_dispatch:
+    inputs:
+      text:
+        description: 'Text to publish?'
+        required: true
+        type: string
+
+jobs:
+  print-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print the text to publish
+        run: echo  ${{ inputs.text }}
