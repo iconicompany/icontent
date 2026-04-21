@@ -10,7 +10,6 @@ fi
 API_BASE="${OPENAI_API_BASE:-https://api.openai.com/v1}"
 API_KEY="${OPENAI_API_KEY}"
 MODEL="${OPENAI_MODEL:-gpt-4o}"
-MODEL_IMAGE="gemini-2.5-flash-image"
 BLOG_DIR="content/ru/blog"
 AGENTS_RULES="AGENTS.md"
 
@@ -60,7 +59,6 @@ ADDITIONAL GUIDELINES:
   - description (string): 1-2 sentence SEO description.
   - tags (array): 3-5 relevant tags from the categories in rules.
   - slug (string): URL-safe latin slug for the filename.
-  - image_prompt (string): A descriptive visual prompt in English for an AI image generator (header image).
   - content (string): The FULL formatted blog post body in Markdown (excluding frontmatter).
 
 Output ONLY the JSON object.
@@ -94,7 +92,6 @@ DESC=$(echo "$METADATA" | jq -r '.description')
 TAGS_ARRAY=$(echo "$METADATA" | jq -rc '.tags')
 SLUG=$(echo "$METADATA" | jq -r '.slug')
 FORMATTED_CONTENT=$(echo "$METADATA" | jq -r '.content')
-IMAGE_PROMPT=$(echo "$METADATA" | jq -r '.image_prompt')
 
 # Apply overrides
 TITLE="${OVERRIDE_TITLE:-$TITLE}"
@@ -102,36 +99,12 @@ SLUG="${OVERRIDE_SLUG:-$SLUG}"
 DATE="${OVERRIDE_DATE:-$(date +%Y-%m-%d)}"
 
 FILENAME="$BLOG_DIR/$SLUG.mdx"
-IMAGE_FILE="$BLOG_DIR/$SLUG.png"
 
 if [ -f "$FILENAME" ]; then
   echo "Warning: File $FILENAME already exists. Appending timestamp."
   TIMESTAMP=$(date +%s)
   SLUG="$SLUG-$TIMESTAMP"
   FILENAME="$BLOG_DIR/$SLUG.mdx"
-  IMAGE_FILE="$BLOG_DIR/$SLUG.png"
-fi
-
-echo "--- Generating AI Image ---"
-echo "Prompt: $IMAGE_PROMPT"
-
-# Call image generation API
-curl -s --location "$API_BASE/images/generations" \
---header "Authorization: Bearer $API_KEY" \
---header 'Content-Type: application/json' \
---data "{
-    \"model\": \"$MODEL_IMAGE\",
-    \"prompt\": $(echo "$IMAGE_PROMPT" | jq -Rs .),
-    \"n\": 1
-}" | jq -r '.data[0].b64_json' | base64 -d > "$IMAGE_FILE"
-
-if [ ! -s "$IMAGE_FILE" ]; then
-  echo "❌ Warning: Image generation failed or returned empty data."
-  # We still proceed with the post creation
-  HAS_IMAGE=false
-else
-  echo "✅ Image generated: $IMAGE_FILE"
-  HAS_IMAGE=true
 fi
 
 echo "--- Generating 'Read Also' section ---"
@@ -140,14 +113,6 @@ TAGS_CLEAN=$(echo "$METADATA" | jq -r '.tags | join(",")')
 READ_ALSO=$(bun scripts/recommend.ts "$TAGS_CLEAN" "$SLUG")
 
 echo "--- Writing file: $FILENAME ---"
-
-# Build image markdown
-IMAGE_MD=""
-if [ "$HAS_IMAGE" = true ]; then
-  IMAGE_MD="![$TITLE]($SLUG.png)
-
-"
-fi
 
 # Assemble the final content
 cat > "$FILENAME" <<EOF
@@ -160,7 +125,7 @@ authors: ['slavb18']
 language: 'ru'
 ---
 
-$IMAGE_MD$FORMATTED_CONTENT
+$FORMATTED_CONTENT
 
 ---
 
@@ -169,7 +134,10 @@ $IMAGE_MD$FORMATTED_CONTENT
 $READ_ALSO
 EOF
 
-# Clean up AI symbols
+# 1. Clean up AI symbols
 bash scripts/clean-symbols.sh "$FILENAME"
+
+# 2. Add AI Image (this script handles generation and insertion)
+bash scripts/add-image.sh "$FILENAME"
 
 echo "✅ Done! Post created at $FILENAME"
