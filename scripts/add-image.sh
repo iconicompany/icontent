@@ -18,8 +18,10 @@ if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then
 fi
 
 SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-DIR=$(dirname "$FILE")
-IMAGE_FILE="$DIR/$SLUG.png"
+# Images now go to a central assets directory
+IMAGE_DIR="assets/blog"
+mkdir -p "$IMAGE_DIR"
+IMAGE_FILE="$IMAGE_DIR/$SLUG.png"
 
 echo "--- Generating image prompt for $FILE ---"
 
@@ -71,11 +73,12 @@ echo "✅ Image saved as $IMAGE_FILE"
 TITLE=$(grep -m1 '^title:' "$FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"'"'" || echo "$SLUG")
 
 # Check if image already exists in file
-if grep -q "!\[.*\]($SLUG.png)" "$FILE"; then
+if grep -q "!\[.*\](../../../assets/blog/$SLUG.png)" "$FILE"; then
   echo "ℹ️ Image reference already exists in file."
 else
   # Insert after the second frontmatter line (second ---)
-  awk -v img="![$TITLE]($SLUG.png)" '
+  # Relative path from content/ru/blog/ to assets/blog/ is ../../../assets/blog/
+  awk -v img="![$TITLE](../../../assets/blog/$SLUG.png)" '
     BEGIN {count=0; inserted=0}
     /^---$/ {
       count++
