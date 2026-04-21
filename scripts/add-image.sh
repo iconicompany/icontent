@@ -55,7 +55,7 @@ curl -s --location "$API_BASE/images/generations" \
 --data "{
     \"model\": \"$MODEL_IMAGE\",
     \"prompt\": $(echo "$IMAGE_PROMPT (edge-to-edge, cinematic, no borders, no padding, fill entire frame)" | jq -Rs .),
-    \"size\": \"1536x896\",
+    \"aspect_ratio\": \"16:9\",
     \"n\": 1
 }" | jq -r '.data[0].b64_json' | base64 -d > "$IMAGE_FILE"
 
