@@ -58,7 +58,7 @@ ADDITIONAL GUIDELINES:
   - title (string): The post title (in Russian).
   - description (string): 1-2 sentence SEO description.
   - tags (array): 3-5 relevant tags from the categories in rules.
-  - slug (string): URL-safe latin slug for the filename.
+  - slug (string): Meaningful English slug (translated from title, NOT transliterated). Example: 'how-to-fix-bugs' instead of 'kak-ispravit-bagi'.
   - content (string): The FULL formatted blog post body in Markdown (excluding frontmatter).
 
 Output ONLY the JSON object.
