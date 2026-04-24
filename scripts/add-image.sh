@@ -23,50 +23,60 @@ IMAGE_DIR="assets/blog"
 mkdir -p "$IMAGE_DIR"
 IMAGE_FILE="$IMAGE_DIR/$SLUG.png"
 
-echo "--- Generating image prompt for $FILE ---"
+# Check if image exists in root or already in assets
+if [ -f "$SLUG.png" ]; then
+  echo "ℹ️ Found local $SLUG.png. Moving to $IMAGE_FILE."
+  mv "$SLUG.png" "$IMAGE_FILE"
+fi
 
-CONTENT=$(cat "$FILE")
+if [ -f "$IMAGE_FILE" ]; then
+  echo "ℹ️ Image $IMAGE_FILE already exists. Skipping generation."
+else
+  echo "--- Generating image prompt for $FILE ---"
 
-# Request an image prompt from LLM
-PROMPT_FOR_LLM="Based on the following blog post, create a descriptive prompt for an image generation AI (like Midjourney or DALL-E) that would serve as a great header image. The prompt should be in English, visual, and conceptual.
+  CONTENT=$(cat "$FILE")
+
+  # Request an image prompt from LLM
+  PROMPT_FOR_LLM="Based on the following blog post, create a descriptive prompt for an image generation AI (like Midjourney or DALL-E) that would serve as a great header image. The prompt should be in English, visual, and conceptual.
 
 POST CONTENT:
 $CONTENT
 
 Output ONLY the image prompt text."
 
-ESCAPED_CONTENT_PROMPT=$(echo "$PROMPT_FOR_LLM" | jq -Rs .)
+  ESCAPED_CONTENT_PROMPT=$(echo "$PROMPT_FOR_LLM" | jq -Rs .)
 
-IMAGE_PROMPT_RESPONSE=$(curl -s "$API_BASE/chat/completions" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $API_KEY" \
-  -d "{
-    \"model\": \"$MODEL_TEXT\",
-    \"messages\": [{\"role\": \"user\", \"content\": $ESCAPED_CONTENT_PROMPT}]
-  }")
+  IMAGE_PROMPT_RESPONSE=$(curl -s "$API_BASE/chat/completions" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $API_KEY" \
+    -d "{
+      \"model\": \"$MODEL_TEXT\",
+      \"messages\": [{\"role\": \"user\", \"content\": $ESCAPED_CONTENT_PROMPT}]
+    }")
 
-IMAGE_PROMPT=$(echo "$IMAGE_PROMPT_RESPONSE" | jq -r '.choices[0].message.content')
+  IMAGE_PROMPT=$(echo "$IMAGE_PROMPT_RESPONSE" | jq -r '.choices[0].message.content')
 
-echo "Prompt: $IMAGE_PROMPT"
-echo "--- Generating image ---"
+  echo "Prompt: $IMAGE_PROMPT"
+  echo "--- Generating image ---"
 
-# Call image generation API
-curl -s --location "$API_BASE/images/generations" \
---header "Authorization: Bearer $API_KEY" \
---header 'Content-Type: application/json' \
---data "{
-    \"model\": \"$MODEL_IMAGE\",
-    \"prompt\": $(echo "$IMAGE_PROMPT (edge-to-edge, cinematic, no borders, no padding, fill entire frame)" | jq -Rs .),
-    \"aspect_ratio\": \"16:9\",
-    \"n\": 1
-}" | jq -r '.data[0].b64_json' | base64 -d > "$IMAGE_FILE"
+  # Call image generation API
+  curl -s --location "$API_BASE/images/generations" \
+  --header "Authorization: Bearer $API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data "{
+      \"model\": \"$MODEL_IMAGE\",
+      \"prompt\": $(echo "$IMAGE_PROMPT (edge-to-edge, cinematic, no borders, no padding, fill entire frame)" | jq -Rs .),
+      \"aspect_ratio\": \"16:9\",
+      \"n\": 1
+  }" | jq -r '.data[0].b64_json' | base64 -d > "$IMAGE_FILE"
 
-if [ ! -s "$IMAGE_FILE" ]; then
-  echo "❌ Error: Failed to generate or save image."
-  exit 1
+  if [ ! -s "$IMAGE_FILE" ]; then
+    echo "❌ Error: Failed to generate or save image."
+    exit 1
+  fi
+
+  echo "✅ Image saved as $IMAGE_FILE"
 fi
-
-echo "✅ Image saved as $IMAGE_FILE"
 
 # Insert image into MDX
 # Find the end of frontmatter (second ---) and insert after it

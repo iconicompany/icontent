@@ -27,7 +27,7 @@ OVERRIDE_DATE=""
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --title) OVERRIDE_TITLE="$2"; shift ;;
-    --slug) OVERRIDE_SLUG="$2"; shift ;;
+    --slug|-s) OVERRIDE_SLUG="$2"; shift ;;
     --date) OVERRIDE_DATE="$2"; shift ;;
     *) echo "Unknown parameter: $1"; exit 1 ;;
   esac

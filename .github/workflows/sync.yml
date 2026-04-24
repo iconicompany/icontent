@@ -159,6 +159,11 @@ jobs:
           echo "post_title=$TITLE" >> "$GITHUB_OUTPUT"
           echo "post_url=$POST_URL" >> "$GITHUB_OUTPUT"
 
+          IMAGE_PATH="assets/blog/${SLUG}.png"
+          if [ -f "$IMAGE_PATH" ]; then
+            echo "post_image=$IMAGE_PATH" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Prepare English Announcement
         id: announce_en
         run: |
@@ -194,27 +199,49 @@ jobs:
           echo "has_post=true" >> "$GITHUB_OUTPUT"
           echo "post_url=$EN_POST_URL" >> "$GITHUB_OUTPUT"
 
+          IMAGE_PATH="assets/blog/${SLUG}.png"
+          if [ -f "$IMAGE_PATH" ]; then
+            echo "post_image=$IMAGE_PATH" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Announce to Telegram
         if: ${{ steps.announce.outputs.has_post == 'true' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_telegram.txt")
-          jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" \
-            '{chat_id: $chat_id, text: $text, parse_mode: "HTML", disable_web_page_preview: false}' \
-            > "$RUNNER_TEMP/telegram_payload.json"
-          curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -H "Content-Type: application/json" \
-            --data "@$RUNNER_TEMP/telegram_payload.json"
+          IMAGE="${{ steps.announce.outputs.post_image }}"
+          if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
+            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto" \
+              -F "chat_id=${TELEGRAM_CHANNEL_ID}" \
+              -F "photo=@$IMAGE" \
+              -F "caption=$MESSAGE" \
+              -F "parse_mode=HTML"
+          else
+            jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" \
+              '{chat_id: $chat_id, text: $text, parse_mode: "HTML", disable_web_page_preview: false}' \
+              > "$RUNNER_TEMP/telegram_payload.json"
+            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              -H "Content-Type: application/json" \
+              --data "@$RUNNER_TEMP/telegram_payload.json"
+          fi
 
       - name: Announce English Post to Telegram
         if: ${{ steps.announce_en.outputs.has_post == 'true' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
-          jq -n --arg chat_id "${TELEGRAM_ENGLISH_CHANNEL_ID}" --arg text "$MESSAGE" \
-            '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}' \
-            > "$RUNNER_TEMP/telegram_en_payload.json"
-          curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -H "Content-Type: application/json" \
-            --data "@$RUNNER_TEMP/telegram_en_payload.json"
+          IMAGE="${{ steps.announce_en.outputs.post_image }}"
+          if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
+            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto" \
+              -F "chat_id=${TELEGRAM_ENGLISH_CHANNEL_ID}" \
+              -F "photo=@$IMAGE" \
+              -F "caption=$MESSAGE"
+          else
+            jq -n --arg chat_id "${TELEGRAM_ENGLISH_CHANNEL_ID}" --arg text "$MESSAGE" \
+              '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}' \
+              > "$RUNNER_TEMP/telegram_en_payload.json"
+            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              -H "Content-Type: application/json" \
+              --data "@$RUNNER_TEMP/telegram_en_payload.json"
+          fi
 
       - name: Announce to Threads
         if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
