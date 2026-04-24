@@ -287,9 +287,9 @@ jobs:
           TITLE="${{ steps.announce.outputs.post_title }}"
           
           ARGS=(--text "$MESSAGE")
-          #if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
-          #  ARGS+=(--image "$IMAGE" --title "$TITLE")
-          #fi
+          if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
+            ARGS+=(--image "$IMAGE" --title "$TITLE")
+          fi
           
           bash scripts/publish-linkedin.sh "${ARGS[@]}"
 

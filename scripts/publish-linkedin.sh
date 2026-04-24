@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Configuration
 if [ -f .env ]; then
@@ -60,7 +61,7 @@ if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
     }
   }')
   
-  REGISTER_RESPONSE=$(curl -s -X POST "https://api.linkedin.com/v2/assets?action=upload" \
+  REGISTER_RESPONSE=$(curl -s -X POST "https://api.linkedin.com/v2/assets?action=registerUpload" \
     -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/json" \
     -H "X-Restli-Protocol-Version: 2.0.0" \
@@ -75,9 +76,12 @@ if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
   fi
   
   # Step 2: Upload Binary
-  curl --fail --show-error -s -X PUT "$UPLOAD_URL" \
-    -H "Authorization: Bearer $TOKEN" \
-    --data-binary "@$IMAGE"
+  # Many LinkedIn pre-signed URLs fail with Auth header. Let's try WITHOUT it first.
+  # And we use PUT with --upload-file for reliability.
+  echo "Uploading binary to $UPLOAD_URL..."
+  curl --fail --show-error -X PUT "$UPLOAD_URL" \
+    -H "Content-Type: application/octet-stream" \
+    --upload-file "$IMAGE"
   
   echo "✅ Image uploaded. Asset ID: $ASSET"
   
