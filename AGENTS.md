@@ -8,10 +8,10 @@
 content/
 ├── ru/
 │   └── blog/
-│       └── *.mdx (или *.md)
+│       └── *.md (или *.md)
 └── en/
     └── blog/
-        └── *.mdx (или *.md)
+        └── *.md (или *.md)
 ```
 
 - **Русские посты**: `/content/ru/blog/`
@@ -19,7 +19,7 @@ content/
 
 ## Формат файлов
 
-Посты создаются в формате **MDX** (Markdown with JSX) с расширением `.mdx` или обычный **Markdown** с расширением `.md`.
+Посты создаются в формате **MDX** (Markdown with JSX) с расширением `.md` или обычный **Markdown** с расширением `.md`.
 
 ## Имя файла
 
@@ -31,13 +31,13 @@ content/
 
 ### Примеры корректных имён:
 
-✅ `telegram-profile-it-2026.mdx`
-✅ `why-do-we-need-ai-agents.mdx`
-✅ `best-llm-for-ocr-2026.mdx`
-✅ `evolution-ai-hr.mdx`
+✅ `telegram-profile-it-2026.md`
+✅ `why-do-we-need-ai-agents.md`
+✅ `best-llm-for-ocr-2026.md`
+✅ `evolution-ai-hr.md`
 
-❌ `Telegram Profile.mdx` (пробелы, заглавные буквы)
-❌ `телеграм-профиль.mdx` (кириллица)
+❌ `Telegram Profile.md` (пробелы, заглавные буквы)
+❌ `телеграм-профиль.md` (кириллица)
 
 ## Структура поста
 

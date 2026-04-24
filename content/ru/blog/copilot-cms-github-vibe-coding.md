@@ -17,7 +17,7 @@ language: 'ru'
 
 Репозиторий [iconicompany/icontent](https://github.com/iconicompany/icontent) - это и есть наша CMS:
 
-- Статьи хранятся как `.mdx`-файлы в папках `content/ru/blog/` и `content/en/blog/`
+- Статьи хранятся как `.md`-файлы в папках `content/ru/blog/` и `content/en/blog/`
 - Любое изменение в ветке `main` запускает GitHub Actions
 - Actions публикует контент, переводит его на английский и рассылает анонсы
 
@@ -45,10 +45,10 @@ Copilot при этом играет роль редактора и автора
 content/
 ru/
 blog/
-post-slug.mdx
+post-slug.md
 en/
 blog/
-post-slug.mdx # автоматически генерируется
+post-slug.md # автоматически генерируется
 ```
 
 Каждый пост - это MDX-файл с YAML frontmatter:

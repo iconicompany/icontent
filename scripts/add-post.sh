@@ -98,13 +98,13 @@ TITLE="${OVERRIDE_TITLE:-$TITLE}"
 SLUG="${OVERRIDE_SLUG:-$SLUG}"
 DATE="${OVERRIDE_DATE:-$(date +%Y-%m-%d)}"
 
-FILENAME="$BLOG_DIR/$SLUG.mdx"
+FILENAME="$BLOG_DIR/$SLUG.md"
 
 if [ -f "$FILENAME" ]; then
   echo "Warning: File $FILENAME already exists. Appending timestamp."
   TIMESTAMP=$(date +%s)
   SLUG="$SLUG-$TIMESTAMP"
-  FILENAME="$BLOG_DIR/$SLUG.mdx"
+  FILENAME="$BLOG_DIR/$SLUG.md"
 fi
 
 echo "--- Generating 'Read Also' section ---"
