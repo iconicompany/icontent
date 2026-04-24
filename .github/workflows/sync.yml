@@ -142,7 +142,7 @@ jobs:
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
           POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
 
-          PROMPT="Напиши вирусный пост по мотивам этой статьи. Структура: 1) Мощный крючок — первая строка, которая цепляет и заставляет нажать 'ещё' (провокационный вопрос, неожиданный факт или смелое утверждение). 2) История или инсайт из 3-5 коротких абзацев (каждый абзац — 1-2 предложения, пустая строка между абзацами). 3) Главный вывод или призыв к действию. 4) 3-5 релевантных хэштегов. Пиши живым разговорным языком, избегай корпоративных клише. Не используй markdown-разметку: никаких **, *, _, #. Добавь 2-4 эмодзи по смыслу. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом поста, без пояснений и кавычек."
+          PROMPT="Напиши вирусный пост по мотивам этой статьи. Структура: 1) Мощный крючок — первая строка, которая цепляет и заставляет нажать 'ещё' (провокационный вопрос, неожиданный факт или смелое утверждение). 2) История или инсайт из 3-5 коротких абзацев (каждый абзац — 1-2 предложения, пустая строка между абзацами). 3) Главный вывод или призыв к действию. Не используй хэштеги. Пиши живым разговорным языком, избегай корпоративных клише. Не используй markdown-разметку: никаких **, *, _, #. Добавь 2-4 эмодзи по смыслу. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом поста, без пояснений и кавычек."
 
           ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE."; exit 1; }
 
@@ -181,7 +181,7 @@ jobs:
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
           EN_POST_URL="${SITE_BASE_URL}/en/blog/${SLUG}"
 
-          PROMPT="Write a viral post based on this article. Keep the entire post strictly under 500 characters (including spaces, emojis, and hashtags) - this is a hard limit for Threads and X. Structure: 1) A powerful hook - the first line that grabs attention. 2) 1-2 sentences of key insight. 3) One clear takeaway or call to action. 4) 2-3 relevant hashtags. Write in a lively conversational style, avoid corporate clichés. Do not use markdown formatting: no **, *, _, #. Add 1-2 relevant emojis. Do not add a URL - it will be appended automatically. Reply with only the post text, no explanations or quotes."
+          PROMPT="Write a viral post based on this article. Keep the entire post strictly under 500 characters (including spaces, emojis) - this is a hard limit for Threads and X. Structure: 1) A powerful hook - the first line that grabs attention. 2) 1-2 sentences of key insight. 3) One clear takeaway or call to action. No hashtags. Write in a lively conversational style, avoid corporate clichés. Do not use markdown formatting: no **, *, _, #. Add 1-2 relevant emojis. Do not add a URL - it will be appended automatically. Reply with only the post text, no explanations or quotes."
 
           ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$EN_FILE" -x) || { echo "Failed to generate English announcement."; exit 1; }
 
