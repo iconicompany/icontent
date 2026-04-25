@@ -5,6 +5,7 @@ description: "Iconicompany - платформа, которая собирает
 tags: ['AI', 'HR', 'HRTech', 'Recruitment', 'LLM']
 authors: ['slavb18']
 language: 'ru'
+exclude: 'linkedin'
 ---
 
 **Рекрутинг сломан.**
