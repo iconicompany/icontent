@@ -76,6 +76,11 @@ jobs:
           echo "new_post=$FILE" >> "$GITHUB_OUTPUT"
           echo "New post: $FILE"
 
+          if [ -n "$FILE" ] && [ -f "$FILE" ]; then
+            EXCLUDE=$(grep -m1 '^exclude:' "$FILE" | sed 's/^exclude:[[:space:]]*//' | tr -d '"'"' || true)
+            echo "exclude=$EXCLUDE" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Update date in new post
         if: ${{ steps.files.outputs.new_post != '' }}
         run: |
@@ -130,6 +135,7 @@ jobs:
 
       - name: Prepare Announcement
         id: announce
+        if: ${{ steps.files.outputs.new_post != '' && !contains(steps.files.outputs.exclude, 'all') }}
         run: |
           FILE="${{ steps.files.outputs.new_post }}"
 
@@ -155,11 +161,10 @@ jobs:
           printf '%s\n\n<a href="%s">👉 Читать статью</a>\n<a href="%s">Телеграм</a> | <a href="%s">Дзен</a> | <a href="%s">Max</a>\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" "${DZEN_CHANNEL_URL}" "${MAX_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_telegram.txt"
 
           TITLE=$(grep -m1 '^title:' "$FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"'"'" || true)
-          EXCLUDE=$(grep -m1 '^exclude:' "$FILE" | sed 's/^exclude:[[:space:]]*//' | tr -d '"'"' || true)
           echo "has_post=true" >> "$GITHUB_OUTPUT"
           echo "post_title=$TITLE" >> "$GITHUB_OUTPUT"
           echo "post_url=$POST_URL" >> "$GITHUB_OUTPUT"
-          echo "exclude=$EXCLUDE" >> "$GITHUB_OUTPUT"
+          echo "exclude=${{ steps.files.outputs.exclude }}" >> "$GITHUB_OUTPUT"
 
           IMAGE_PATH="assets/blog/${SLUG}.png"
           if [ -f "$IMAGE_PATH" ]; then
@@ -168,6 +173,7 @@ jobs:
 
       - name: Prepare English Announcement
         id: announce_en
+        if: ${{ steps.files.outputs.new_post != '' && !contains(steps.files.outputs.exclude, 'all') }}
         run: |
           FILE="${{ steps.files.outputs.new_post }}"
 
@@ -207,7 +213,7 @@ jobs:
           fi
 
       - name: Announce to Telegram
-        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
+        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_telegram.txt")
           IMAGE="${{ steps.announce.outputs.post_image }}"
@@ -227,7 +233,7 @@ jobs:
           fi
 
       - name: Announce English Post to Telegram
-        if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
+        if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
           IMAGE="${{ steps.announce_en.outputs.post_image }}"
@@ -246,7 +252,7 @@ jobs:
           fi
 
       - name: Announce to Threads
-        if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'threads') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
+        if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'threads') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_${THREADS_LANG}.txt")
           CREATION_ID=$(curl --fail --show-error -s \
@@ -262,7 +268,7 @@ jobs:
             -H "Authorization: Bearer ${THREADS_TOKEN}"
 
       - name: Announce English Post to X
-        if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'x') && env.X_TOKEN != '' }}
+        if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'x') && env.X_TOKEN != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
           curl --fail --show-error -s \
@@ -272,7 +278,7 @@ jobs:
             -d "$(jq -n --arg text "$MESSAGE" '{text: $text}')"
 
       - name: Announce to Max
-        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'max') && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
+        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'max') && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
           jq -n --arg text "$MESSAGE" '{text: $text}' \
@@ -282,7 +288,7 @@ jobs:
             --data "@$RUNNER_TEMP/max_payload.json"
 
       - name: Announce to LinkedIn
-        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'linkedin') && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
+        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'linkedin') && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
           IMAGE="${{ steps.announce.outputs.post_image }}"
@@ -296,7 +302,7 @@ jobs:
           bash scripts/publish-linkedin.sh "${ARGS[@]}"
 
       - name: Announce to Medium
-        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'medium') && env.MEDIUM_TOKEN != '' && env.MEDIUM_AUTHOR_ID != '' }}
+        if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'medium') && env.MEDIUM_TOKEN != '' && env.MEDIUM_AUTHOR_ID != '' }}
         run: |
           MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
           jq -n \
@@ -317,7 +323,7 @@ jobs:
             --data "@$RUNNER_TEMP/medium_payload.json"
 
       - name: Publish English Article to Telegraph
-        if: ${{ steps.files.outputs.new_post != '' && !contains(steps.announce.outputs.exclude, 'all') && !contains(steps.announce.outputs.exclude, 'telegraph') && env.TELEGRAPH_ACCESS_TOKEN != '' }}
+        if: ${{ steps.files.outputs.new_post != '' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegraph') && env.TELEGRAPH_ACCESS_TOKEN != '' }}
         run: |
           set -e
           FILE="${{ steps.files.outputs.new_post }}"
