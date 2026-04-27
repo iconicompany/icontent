@@ -23,6 +23,13 @@ fi
 OVERRIDE_TITLE=""
 OVERRIDE_SLUG=""
 OVERRIDE_DATE=""
+INPUT_FILE=""
+
+# Check if the first argument is a file
+if [ -f "$1" ]; then
+  INPUT_FILE="$1"
+  shift
+fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -34,37 +41,45 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-# Read content from stdin
-RAW_CONTENT=$(cat)
+# Read content
+if [ -n "$INPUT_FILE" ]; then
+  RAW_CONTENT=$(cat "$INPUT_FILE")
+else
+  # Check if stdin has data
+  if [ ! -t 0 ]; then
+    RAW_CONTENT=$(cat)
+  else
+    echo "Error: No input file provided and no content via stdin."
+    exit 1
+  fi
+fi
 
 if [ -z "$RAW_CONTENT" ]; then
-  echo "Error: No content provided via stdin."
+  echo "Error: No content provided."
   exit 1
 fi
 
 echo "--- Processing content with LLM (Formatting + Metadata) ---"
 
 # Prepare JSON prompt for LLM
-PROMPT="You are a professional blog post editor. Your task is to take a raw draft and format it into a high-quality Markdown blog post while following specific style guidelines.
+PROMPT="You are a professional blog post editor. Your task is to take a raw draft or an existing post and format/fix it while following specific style guidelines.
 
 RULES FROM AGENTS.MD:
 $RULES
 
 ADDITIONAL GUIDELINES:
-- Use emojis for accents (✅, ❌, 👤, 💡, ⚡) but moderately.
-- Ensure empty lines between emoji-prefixed items to prevent collapsing.
-- Use ## and ### for headings.
-- The output must be a JSON object with the following fields:
-  - title (string): The post title (in Russian).
-  - description (string): 1-2 sentence SEO description.
-  - tags (array): 3-5 relevant tags from the categories in rules.
-  - slug (string): Meaningful English slug (translated from title, NOT transliterated). Example: 'how-to-fix-bugs' instead of 'kak-ispravit-bagi'.
-  - content (string): The FULL formatted blog post body in Markdown (excluding frontmatter).
+- Use emojis for accents but moderately.
+- Ensure empty lines between emoji-prefixed items.
+- Ensure title, date, description, tags, authors, language are in the frontmatter.
+- If frontmatter is missing, create it.
+- If tags or description are weak, improve them.
+- Slug must be a meaningful English slug (translated from title).
+- The output must be a JSON object.
 
-Output ONLY the JSON object.
+DRAFT/POST:
+$RAW_CONTENT
 
-RAW DRAFT:
-$RAW_CONTENT"
+Output ONLY the JSON object with fields: title, description, tags (array), slug, date (YYYY-MM-DD), content (markdown body)."
 
 # Escape content for JSON
 ESCAPED_PROMPT=$(echo "$PROMPT" | jq -Rs .)
@@ -92,30 +107,38 @@ DESC=$(echo "$METADATA" | jq -r '.description')
 TAGS_ARRAY=$(echo "$METADATA" | jq -rc '.tags')
 SLUG=$(echo "$METADATA" | jq -r '.slug')
 FORMATTED_CONTENT=$(echo "$METADATA" | jq -r '.content')
+DATE=$(echo "$METADATA" | jq -r '.date')
 
 # Apply overrides
 TITLE="${OVERRIDE_TITLE:-$TITLE}"
 SLUG="${OVERRIDE_SLUG:-$SLUG}"
-DATE="${OVERRIDE_DATE:-$(date +%Y-%m-%d)}"
+DATE="${OVERRIDE_DATE:-$DATE}"
+[ "$DATE" == "null" ] && DATE=$(date +%Y-%m-%d)
 
-FILENAME="$BLOG_DIR/$SLUG.md"
+FINAL_FILENAME="$BLOG_DIR/$SLUG.md"
 
-if [ -f "$FILENAME" ]; then
-  echo "Warning: File $FILENAME already exists. Appending timestamp."
+# If we have an input file, and it is in the blog dir, we might need to remove it if renaming
+if [ -n "$INPUT_FILE" ] && [ "$INPUT_FILE" != "$FINAL_FILENAME" ]; then
+  echo "--- Renaming/Moving: $INPUT_FILE -> $FINAL_FILENAME ---"
+  # If it's a rename, we'll delete the old one after writing the new one
+  OLD_FILE="$INPUT_FILE"
+fi
+
+if [ -f "$FINAL_FILENAME" ] && [ "$INPUT_FILE" != "$FINAL_FILENAME" ]; then
+  echo "Warning: File $FINAL_FILENAME already exists. Appending timestamp."
   TIMESTAMP=$(date +%s)
   SLUG="$SLUG-$TIMESTAMP"
-  FILENAME="$BLOG_DIR/$SLUG.md"
+  FINAL_FILENAME="$BLOG_DIR/$SLUG.md"
 fi
 
 echo "--- Generating 'Read Also' section ---"
-# Convert tags array literal for the recommend script
 TAGS_CLEAN=$(echo "$METADATA" | jq -r '.tags | join(",")')
 READ_ALSO=$(bun scripts/recommend.ts "$TAGS_CLEAN" "$SLUG")
 
-echo "--- Writing file: $FILENAME ---"
+echo "--- Writing file: $FINAL_FILENAME ---"
 
 # Assemble the final content
-cat > "$FILENAME" <<EOF
+cat > "$FINAL_FILENAME" <<EOF
 ---
 title: "$TITLE"
 date: '$DATE'
@@ -134,10 +157,14 @@ $FORMATTED_CONTENT
 $READ_ALSO
 EOF
 
-# 1. Clean up AI symbols
-bash scripts/clean-symbols.sh "$FILENAME"
+# Remove old file if it was a rename
+if [ -n "$OLD_FILE" ] && [ "$OLD_FILE" != "$FINAL_FILENAME" ]; then
+  rm "$OLD_FILE"
+fi
 
-# 2. Add AI Image (this script handles generation and insertion)
-bash scripts/add-image.sh "$FILENAME"
+# Post-processing
+bash scripts/clean-symbols.sh "$FINAL_FILENAME"
+bash scripts/add-image.sh "$FINAL_FILENAME"
 
-echo "✅ Done! Post created at $FILENAME"
+echo "✅ Done! Post created at $FINAL_FILENAME"
+

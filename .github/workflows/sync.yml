@@ -32,13 +32,16 @@ jobs:
       DZEN_CHANNEL_URL: ${{ vars.DZEN_CHANNEL_URL }}
       TELEGRAPH_ACCESS_TOKEN: ${{ secrets.TELEGRAPH_ACCESS_TOKEN }}
       SITE_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://iconicompany.com' }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_API_BASE: ${{ vars.OPENAI_API_BASE }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
 
     steps:
-      #- uses: oven-sh/setup-bun@v2
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -79,27 +82,56 @@ jobs:
           if [ -n "$FILE" ] && [ -f "$FILE" ]; then
             EXCLUDE=$(grep -m1 '^exclude:' "$FILE" | sed 's/^exclude:[[:space:]]*//' | tr -d '"'"' || true)
             echo "exclude=$EXCLUDE" >> "$GITHUB_OUTPUT"
+
+            if head -n 1 "$FILE" | grep -q '^---$'; then
+               echo "has_frontmatter=true" >> "$GITHUB_OUTPUT"
+            else
+               echo "has_frontmatter=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
-      - name: Update date in new post
-        if: ${{ steps.files.outputs.new_post != '' }}
+      - name: Finalize and format post
+        id: finalize
+        if: ${{ steps.files.outputs.new_post != '' && steps.files.outputs.has_frontmatter == 'false' }}
         run: |
           FILE="${{ steps.files.outputs.new_post }}"
+          echo "Finalizing $FILE..."
+          
+          # Run add-post.sh. It will handle frontmatter, read also, image, and renaming if needed.
+          OUTPUT=$(bash scripts/add-post.sh "$FILE")
+          echo "$OUTPUT"
+          
+          # Extract the final filename from the last line (using grep and awk)
+          FINAL_FILE=$(echo "$OUTPUT" | grep "Done! Post created at" | awk '{print $NF}')
+          
+          if [ -n "$FINAL_FILE" ] && [ -f "$FINAL_FILE" ]; then
+             echo "Final file path: $FINAL_FILE"
+             echo "new_post=$FINAL_FILE" >> "$GITHUB_OUTPUT"
+          else
+             echo "Failed to determine final file path. Using original $FILE."
+             echo "new_post=$FILE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update date in finalized post
+        if: ${{ steps.finalize.outputs.new_post != '' || (steps.files.outputs.new_post != '' && steps.files.outputs.has_frontmatter == 'true') }}
+        run: |
+          FILE="${{ steps.finalize.outputs.new_post || steps.files.outputs.new_post }}"
           TODAY=$(date -u +%Y-%m-%d)
           echo "Updating date in $FILE to $TODAY..."
           sed -i -E "s/^(date:[[:space:]]*)(['\"]?)[0-9]{4}-[0-9]{2}-[0-9]{2}(['\"]?)/\1\2$TODAY\3/" "$FILE"
 
-      - name: Clean AI symbols in new post
-        if: ${{ steps.files.outputs.new_post != '' }}
+      - name: Commit Finalized Post
+        if: ${{ steps.finalize.outputs.new_post != '' }}
         run: |
-          FILE="${{ steps.files.outputs.new_post }}"
-          echo "Cleaning AI symbols in $FILE..."
-          bash scripts/clean-symbols.sh "$FILE"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/ assets/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: finalize blog post and generate assets" && git push)
 
       - name: Translate new post to English
-        if: ${{ steps.files.outputs.new_post != '' }}
+        if: ${{ steps.finalize.outputs.new_post != '' || (steps.files.outputs.new_post != '' && steps.files.outputs.has_frontmatter == 'true') }}
         run: |
-          FILE="${{ steps.files.outputs.new_post }}"
+          FILE="${{ steps.finalize.outputs.new_post || steps.files.outputs.new_post }}"
           EN_FILE="${FILE/content\/ru\//content\/en\/}"
           EN_DIR=$(dirname "$EN_FILE")
           mkdir -p "$EN_DIR"
@@ -135,9 +167,9 @@ jobs:
 
       - name: Prepare Announcement
         id: announce
-        if: ${{ steps.files.outputs.new_post != '' && !contains(steps.files.outputs.exclude, 'all') }}
+        if: ${{ (steps.finalize.outputs.new_post != '' || (steps.files.outputs.new_post != '' && steps.files.outputs.has_frontmatter == 'true')) && !contains(steps.files.outputs.exclude, 'all') }}
         run: |
-          FILE="${{ steps.files.outputs.new_post }}"
+          FILE="${{ steps.finalize.outputs.new_post || steps.files.outputs.new_post }}"
 
           if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then
             echo "No new posts in content/ru/blog/ found, skipping announcement."
@@ -173,9 +205,9 @@ jobs:
 
       - name: Prepare English Announcement
         id: announce_en
-        if: ${{ steps.files.outputs.new_post != '' && !contains(steps.files.outputs.exclude, 'all') }}
+        if: ${{ (steps.finalize.outputs.new_post != '' || (steps.files.outputs.new_post != '' && steps.files.outputs.has_frontmatter == 'true')) && !contains(steps.files.outputs.exclude, 'all') }}
         run: |
-          FILE="${{ steps.files.outputs.new_post }}"
+          FILE="${{ steps.finalize.outputs.new_post || steps.files.outputs.new_post }}"
 
           if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then
             echo "No new posts found, skipping English announcement."
@@ -323,10 +355,10 @@ jobs:
             --data "@$RUNNER_TEMP/medium_payload.json"
 
       - name: Publish English Article to Telegraph
-        if: ${{ steps.files.outputs.new_post != '' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegraph') && env.TELEGRAPH_ACCESS_TOKEN != '' }}
+        if: ${{ (steps.finalize.outputs.new_post != '' || (steps.files.outputs.new_post != '' && steps.files.outputs.has_frontmatter == 'true')) && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegraph') && env.TELEGRAPH_ACCESS_TOKEN != '' }}
         run: |
           set -e
-          FILE="${{ steps.files.outputs.new_post }}"
+          FILE="${{ steps.finalize.outputs.new_post || steps.files.outputs.new_post }}"
           EN_FILE="${FILE/content\/ru\//content\/en\/}"
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
 
