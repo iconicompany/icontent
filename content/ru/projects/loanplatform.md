@@ -13,17 +13,17 @@ teamLink: '/ru/teams/fintech-banking'
 
 ## 🏦 Проект: Кредитный конвейер для банка
 
-![loanplatform-01](./loanplatform/loanplatform-01.jpg)
-![loanplatform-02](./loanplatform/loanplatform-02.jpg)
-![loanplatform-03](./loanplatform/loanplatform-03.jpg)
-![loanplatform-04](./loanplatform/loanplatform-04.jpg)
-![loanplatform-05](./loanplatform/loanplatform-05.jpg)
-![loanplatform-06](./loanplatform/loanplatform-06.jpg)
-![loanplatform-07](./loanplatform/loanplatform-07.jpg)
-![loanplatform-08](./loanplatform/loanplatform-08.jpg)
-![loanplatform-09](./loanplatform/loanplatform-09.jpg)
-![loanplatform-10](./loanplatform/loanplatform-10.jpg)
-![loanplatform-11](./loanplatform/loanplatform-11.jpg)
+![loanplatform-01](../../../assets/loanplatform/loanplatform-01.jpg)
+![loanplatform-02](../../../assets/loanplatform/loanplatform-02.jpg)
+![loanplatform-03](../../../assets/loanplatform/loanplatform-03.jpg)
+![loanplatform-04](../../../assets/loanplatform/loanplatform-04.jpg)
+![loanplatform-05](../../../assets/loanplatform/loanplatform-05.jpg)
+![loanplatform-06](../../../assets/loanplatform/loanplatform-06.jpg)
+![loanplatform-07](../../../assets/loanplatform/loanplatform-07.jpg)
+![loanplatform-08](../../../assets/loanplatform/loanplatform-08.jpg)
+![loanplatform-09](../../../assets/loanplatform/loanplatform-09.jpg)
+![loanplatform-10](../../../assets/loanplatform/loanplatform-10.jpg)
+![loanplatform-11](../../../assets/loanplatform/loanplatform-11.jpg)
 
 ### 📌 Контекст (as-is состояние)
 
