@@ -59,6 +59,8 @@ if [ -z "$RAW_CONTENT" ]; then
   exit 1
 fi
 
+TODAY=$(date +%Y-%m-%d)
+
 echo "--- Processing content with LLM (Formatting + Metadata) ---"
 
 # Prepare JSON prompt for LLM
@@ -74,6 +76,7 @@ ADDITIONAL GUIDELINES:
 - If frontmatter is missing, create it.
 - If tags or description are weak, improve them.
 - Slug must be a meaningful English slug (translated from title).
+- If date is missing or generic, use today's date: $TODAY.
 - The output must be a JSON object.
 
 DRAFT/POST:
