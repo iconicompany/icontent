@@ -168,6 +168,7 @@ fi
 # Post-processing
 bash scripts/clean-symbols.sh "$FINAL_FILENAME"
 bash scripts/add-image.sh "$FINAL_FILENAME"
+bash scripts/translate-post.sh "$FINAL_FILENAME"
 
 echo "✅ Done! Post created at $FINAL_FILENAME"
 
