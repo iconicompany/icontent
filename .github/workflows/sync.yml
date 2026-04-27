@@ -80,7 +80,7 @@ jobs:
           echo "New post: $FILE"
 
           if [ -n "$FILE" ] && [ -f "$FILE" ]; then
-            EXCLUDE=$(grep -m1 '^exclude:' "$FILE" | sed 's/^exclude:[[:space:]]*//' | tr -d '"'"' || true)
+            EXCLUDE=$(grep -m1 '^exclude:' "$FILE" | sed 's/^exclude:[[:space:]]*//' | tr -d "'\"" || true)
             echo "exclude=$EXCLUDE" >> "$GITHUB_OUTPUT"
 
             if head -n 1 "$FILE" | grep -q '^---$'; then
@@ -192,7 +192,7 @@ jobs:
           printf '%s\n\n👉 Статья: %s\n\n📢 %s\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_ru.txt"
           printf '%s\n\n<a href="%s">👉 Читать статью</a>\n<a href="%s">Телеграм</a> | <a href="%s">Дзен</a> | <a href="%s">Max</a>\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" "${DZEN_CHANNEL_URL}" "${MAX_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_telegram.txt"
 
-          TITLE=$(grep -m1 '^title:' "$FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"'"'" || true)
+          TITLE=$(grep -m1 '^title:' "$FILE" | sed 's/^title:[[:space:]]*//' | tr -d "'\"" || true)
           echo "has_post=true" >> "$GITHUB_OUTPUT"
           echo "post_title=$TITLE" >> "$GITHUB_OUTPUT"
           echo "post_url=$POST_URL" >> "$GITHUB_OUTPUT"
