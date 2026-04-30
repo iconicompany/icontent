@@ -1,6 +1,12 @@
 #!/bin/bash
 # Centralized script to clean up AI-generated artifacts and special symbols.
 
+set -e
+
+# Ensure Unicode support for sed
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
 STRIP_MARKDOWN=false
 FILE=""
 

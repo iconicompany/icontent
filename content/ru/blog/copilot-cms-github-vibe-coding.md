@@ -71,7 +71,7 @@ language: 'ru'
 **Автоперевод** - используется утилита [`llm`](https://llm.datasette.io/) Simon Willison. Она вызывает LLM через OpenAI-совместимый API (у нас - LiteLLM-прокси), который можно подключить к любой модели.
 
 ```bash
-llm -m litellm --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
+llm -m default --system "$PROMPT" -f "$FILE" -x > "$EN_FILE"
 ```
 
 Если английская версия уже есть в коммите, перевод пропускается - это удобно, когда хочется сделать ручной перевод.

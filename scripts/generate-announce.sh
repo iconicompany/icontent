@@ -5,6 +5,10 @@
 
 set -e
 
+# Ensure Unicode support
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
 FILE=$1
 if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then
   echo "Usage: $0 <path-to-md-file>"
@@ -27,7 +31,7 @@ else
 fi
 
 # Generate announcement using llm
-ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x)
+ANNOUNCEMENT=$(llm -m default --system "$PROMPT" -f "$FILE" -x)
 
 # Clean symbols
 TEMP_FILE=$(mktemp)
@@ -36,19 +40,9 @@ bash scripts/clean-symbols.sh -a "$TEMP_FILE"
 ANNOUNCEMENT=$(cat "$TEMP_FILE")
 rm "$TEMP_FILE"
 
-OUTPUT_FILE="${2:-${SLUG}.txt}"
+OUTPUT_FILE="${2:-${FILE%.*}.txt}"
 
 # Construct final text
-if [ "$LANG" == "ru" ]; then
-  # For Russian, we generate two versions if needed, but the primary slug.txt will be the Telegram version
-  printf '%s\n\n<a href="%s">👉 Читать статью</a>\n<a href="%s">Телеграм</a> | <a href="%s">Дзен</a> | <a href="%s">Max</a>\n' \
-    "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" "${DZEN_CHANNEL_URL}" "${MAX_CHANNEL_URL}" > "$OUTPUT_FILE"
-  
-  # Also create a plain version for other platforms if needed
-  printf '%s\n\n👉 Статья: %s\n\n📢 %s\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" > "${OUTPUT_FILE%.txt}_plain.txt"
-else
-  # For English
-  printf '%s\n\n%s\n' "$ANNOUNCEMENT" "$POST_URL" > "$OUTPUT_FILE"
-fi
+printf '%s\n\n👉 %s\n' "$ANNOUNCEMENT" "$POST_URL" > "$OUTPUT_FILE"
 
 echo "Generated $OUTPUT_FILE"

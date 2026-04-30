@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir -p ~/.config/io.datasette.llm
           cat <<EOF > ~/.config/io.datasette.llm/extra-openai-models.yaml
-          - model_id: litellm
+          - model_id: default
             model_name: ${{ vars.OPENAI_MODEL }}
             api_base: "${{ vars.OPENAI_API_BASE }}"
             api_key_name: litellm
@@ -155,9 +155,8 @@ jobs:
           fi
 
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-          ANNOUNCE_FILE="$RUNNER_TEMP/${SLUG}.txt"
-          
-          bash scripts/generate_announce.sh "$FILE" "$ANNOUNCE_FILE"
+          bash scripts/generate-announce.sh "$FILE"
+          ANNOUNCE_FILE="${FILE%.*}.txt"
 
           TITLE=$(grep -m1 '^title:' "$FILE" | sed 's/^title:[[:space:]]*//' | tr -d "'\"" || true)
           echo "has_post=true" >> "$GITHUB_OUTPUT"
@@ -165,7 +164,6 @@ jobs:
           echo "post_url=${SITE_BASE_URL}/ru/blog/${SLUG}" >> "$GITHUB_OUTPUT"
           echo "exclude=${{ steps.files.outputs.exclude }}" >> "$GITHUB_OUTPUT"
           echo "announce_file=$ANNOUNCE_FILE" >> "$GITHUB_OUTPUT"
-          echo "announce_file_plain=${ANNOUNCE_FILE%.txt}_plain.txt" >> "$GITHUB_OUTPUT"
 
           IMAGE_PATH="assets/blog/${SLUG}.png"
           if [ -f "$IMAGE_PATH" ]; then
@@ -193,9 +191,8 @@ jobs:
           fi
 
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-          ANNOUNCE_FILE="$RUNNER_TEMP/${SLUG}_en.txt"
-
-          bash scripts/generate_announce.sh "$EN_FILE" "$ANNOUNCE_FILE"
+          bash scripts/generate-announce.sh "$EN_FILE"
+          ANNOUNCE_FILE="${EN_FILE%.*}.txt"
 
           echo "has_post=true" >> "$GITHUB_OUTPUT"
           echo "post_url=${SITE_BASE_URL}/en/blog/${SLUG}" >> "$GITHUB_OUTPUT"
@@ -227,7 +224,7 @@ jobs:
         if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'threads') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
         run: |
           if [ "${THREADS_LANG}" = "ru" ]; then
-            MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
+            MESSAGE=$(cat "${{ steps.announce.outputs.announce_file }}")
           else
             MESSAGE=$(cat "${{ steps.announce_en.outputs.announce_file }}")
           fi
@@ -256,7 +253,7 @@ jobs:
       - name: Announce to Max
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'max') && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
         run: |
-          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
+          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file }}")
           jq -n --arg text "$MESSAGE" '{text: $text}' \
             > "$RUNNER_TEMP/max_payload.json"
           curl --fail --show-error -s -X POST "https://botapi.max.ru/messages?access_token=${MAX_BOT_TOKEN}&chat_id=${MAX_CHANNEL_ID}" \
@@ -266,7 +263,7 @@ jobs:
       - name: Announce to LinkedIn
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'linkedin') && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
         run: |
-          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
+          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file }}")
           IMAGE="${{ steps.announce.outputs.post_image }}"
           TITLE="${{ steps.announce.outputs.post_title }}"
           
@@ -280,7 +277,7 @@ jobs:
       - name: Announce to Medium
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'medium') && env.MEDIUM_TOKEN != '' && env.MEDIUM_AUTHOR_ID != '' }}
         run: |
-          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
+          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file }}")
           jq -n \
             --arg title "${{ steps.announce.outputs.post_title }}" \
             --arg content "$MESSAGE" \
