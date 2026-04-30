@@ -5,7 +5,7 @@ The full article is published (not an announcement), with a link
 to the original Russian version appended at the end.
 
 Usage:
-    python publish_telegraph.py <en_mdx_file> <ru_slug>
+    python publish-telegraph.py <en_mdx_file> <ru_slug>
 
 Environment variables:
     TELEGRAPH_ACCESS_TOKEN  – Telegraph account access token (required)

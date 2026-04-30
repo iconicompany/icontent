@@ -155,25 +155,17 @@ jobs:
           fi
 
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-          POST_URL="${SITE_BASE_URL}/ru/blog/${SLUG}"
-
-          PROMPT="Напиши вирусный пост по мотивам этой статьи. Структура: 1) Мощный крючок — первая строка, которая цепляет и заставляет нажать 'ещё' (провокационный вопрос, неожиданный факт или смелое утверждение). 2) История или инсайт из 3-5 коротких абзацев (каждый абзац — 1-2 предложения, пустая строка между абзацами). 3) Главный вывод или призыв к действию. Не используй хэштеги. Пиши живым разговорным языком, избегай корпоративных клише. Не используй markdown-разметку: никаких **, *, _, #. Добавь 2-4 эмодзи по смыслу. Не добавляй ссылку — она будет добавлена автоматически. Отвечай только текстом поста, без пояснений и кавычек."
-
-          ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$FILE" -x) || { echo "Failed to generate announcement for $FILE."; exit 1; }
-
-          # Strip any remaining markdown formatting and AI-style symbols
-          echo "$ANNOUNCEMENT" > /tmp/announcement.txt
-          bash scripts/clean-symbols.sh -a /tmp/announcement.txt
-          ANNOUNCEMENT=$(cat /tmp/announcement.txt)
-
-          printf '%s\n\n👉 Статья: %s\n\n📢 %s\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_ru.txt"
-          printf '%s\n\n<a href="%s">👉 Читать статью</a>\n<a href="%s">Телеграм</a> | <a href="%s">Дзен</a> | <a href="%s">Max</a>\n' "$ANNOUNCEMENT" "$POST_URL" "${TELEGRAM_CHANNEL_URL}" "${DZEN_CHANNEL_URL}" "${MAX_CHANNEL_URL}" > "$RUNNER_TEMP/announcement_telegram.txt"
+          ANNOUNCE_FILE="$RUNNER_TEMP/${SLUG}.txt"
+          
+          bash scripts/generate_announce.sh "$FILE" "$ANNOUNCE_FILE"
 
           TITLE=$(grep -m1 '^title:' "$FILE" | sed 's/^title:[[:space:]]*//' | tr -d "'\"" || true)
           echo "has_post=true" >> "$GITHUB_OUTPUT"
           echo "post_title=$TITLE" >> "$GITHUB_OUTPUT"
-          echo "post_url=$POST_URL" >> "$GITHUB_OUTPUT"
+          echo "post_url=${SITE_BASE_URL}/ru/blog/${SLUG}" >> "$GITHUB_OUTPUT"
           echo "exclude=${{ steps.files.outputs.exclude }}" >> "$GITHUB_OUTPUT"
+          echo "announce_file=$ANNOUNCE_FILE" >> "$GITHUB_OUTPUT"
+          echo "announce_file_plain=${ANNOUNCE_FILE%.txt}_plain.txt" >> "$GITHUB_OUTPUT"
 
           IMAGE_PATH="assets/blog/${SLUG}.png"
           if [ -f "$IMAGE_PATH" ]; then
@@ -201,20 +193,13 @@ jobs:
           fi
 
           SLUG=$(basename "$FILE" | sed 's/\.[^.]*$//')
-          EN_POST_URL="${SITE_BASE_URL}/en/blog/${SLUG}"
+          ANNOUNCE_FILE="$RUNNER_TEMP/${SLUG}_en.txt"
 
-          PROMPT="Write a viral post based on this article. Keep the entire post strictly under 500 characters (including spaces, emojis) - this is a hard limit for Threads and X. Structure: 1) A powerful hook - the first line that grabs attention. 2) 1-2 sentences of key insight. 3) One clear takeaway or call to action. No hashtags. Write in a lively conversational style, avoid corporate clichés. Do not use markdown formatting: no **, *, _, #. Add 1-2 relevant emojis. Do not add a URL - it will be appended automatically. Reply with only the post text, no explanations or quotes."
-
-          ANNOUNCEMENT=$(llm -m litellm --system "$PROMPT" -f "$EN_FILE" -x) || { echo "Failed to generate English announcement."; exit 1; }
-
-          echo "$ANNOUNCEMENT" > /tmp/announcement_en.txt
-          bash scripts/clean-symbols.sh -a /tmp/announcement_en.txt
-          ANNOUNCEMENT=$(cat /tmp/announcement_en.txt)
-
-          printf '%s\n\n%s\n' "$ANNOUNCEMENT" "$EN_POST_URL" > "$RUNNER_TEMP/announcement_en.txt"
+          bash scripts/generate_announce.sh "$EN_FILE" "$ANNOUNCE_FILE"
 
           echo "has_post=true" >> "$GITHUB_OUTPUT"
-          echo "post_url=$EN_POST_URL" >> "$GITHUB_OUTPUT"
+          echo "post_url=${SITE_BASE_URL}/en/blog/${SLUG}" >> "$GITHUB_OUTPUT"
+          echo "announce_file=$ANNOUNCE_FILE" >> "$GITHUB_OUTPUT"
 
           IMAGE_PATH="assets/blog/${SLUG}.png"
           if [ -f "$IMAGE_PATH" ]; then
@@ -224,46 +209,28 @@ jobs:
       - name: Announce to Telegram
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHANNEL_ID != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_telegram.txt")
-          IMAGE="${{ steps.announce.outputs.post_image }}"
-          if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
-            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto" \
-              -F "chat_id=${TELEGRAM_CHANNEL_ID}" \
-              -F "photo=@$IMAGE" \
-              -F "caption=$MESSAGE" \
-              -F "parse_mode=HTML"
-          else
-            jq -n --arg chat_id "${TELEGRAM_CHANNEL_ID}" --arg text "$MESSAGE" \
-              '{chat_id: $chat_id, text: $text, parse_mode: "HTML", disable_web_page_preview: false}' \
-              > "$RUNNER_TEMP/telegram_payload.json"
-            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-              -H "Content-Type: application/json" \
-              --data "@$RUNNER_TEMP/telegram_payload.json"
-          fi
+          bash scripts/publish-telegram.sh \
+            --message "${{ steps.announce.outputs.announce_file }}" \
+            --image "${{ steps.announce.outputs.post_image }}" \
+            --chat-id "${TELEGRAM_CHANNEL_ID}"
 
       - name: Announce English Post to Telegram
         if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
-          IMAGE="${{ steps.announce_en.outputs.post_image }}"
-          if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
-            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto" \
-              -F "chat_id=${TELEGRAM_ENGLISH_CHANNEL_ID}" \
-              -F "photo=@$IMAGE" \
-              -F "caption=$MESSAGE"
-          else
-            jq -n --arg chat_id "${TELEGRAM_ENGLISH_CHANNEL_ID}" --arg text "$MESSAGE" \
-              '{chat_id: $chat_id, text: $text, disable_web_page_preview: false}' \
-              > "$RUNNER_TEMP/telegram_en_payload.json"
-            curl --fail --show-error -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-              -H "Content-Type: application/json" \
-              --data "@$RUNNER_TEMP/telegram_en_payload.json"
-          fi
+          bash scripts/publish-telegram.sh \
+            --message "${{ steps.announce_en.outputs.announce_file }}" \
+            --image "${{ steps.announce_en.outputs.post_image }}" \
+            --chat-id "${TELEGRAM_ENGLISH_CHANNEL_ID}" \
+            --parse-mode ""
 
       - name: Announce to Threads
         if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'threads') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_${THREADS_LANG}.txt")
+          if [ "${THREADS_LANG}" = "ru" ]; then
+            MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
+          else
+            MESSAGE=$(cat "${{ steps.announce_en.outputs.announce_file }}")
+          fi
           CREATION_ID=$(curl --fail --show-error -s \
             -X POST "https://graph.threads.net/v1.0/${THREADS_USER_ID}/threads" \
             -H "Content-Type: application/json" \
@@ -279,7 +246,7 @@ jobs:
       - name: Announce English Post to X
         if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'x') && env.X_TOKEN != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_en.txt")
+          MESSAGE=$(cat "${{ steps.announce_en.outputs.announce_file }}")
           curl --fail --show-error -s \
             -X POST "https://api.twitter.com/2/tweets" \
             -H "Authorization: Bearer ${X_TOKEN}" \
@@ -289,7 +256,7 @@ jobs:
       - name: Announce to Max
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'max') && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
+          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
           jq -n --arg text "$MESSAGE" '{text: $text}' \
             > "$RUNNER_TEMP/max_payload.json"
           curl --fail --show-error -s -X POST "https://botapi.max.ru/messages?access_token=${MAX_BOT_TOKEN}&chat_id=${MAX_CHANNEL_ID}" \
@@ -299,7 +266,7 @@ jobs:
       - name: Announce to LinkedIn
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'linkedin') && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
+          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
           IMAGE="${{ steps.announce.outputs.post_image }}"
           TITLE="${{ steps.announce.outputs.post_title }}"
           
@@ -313,7 +280,7 @@ jobs:
       - name: Announce to Medium
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'medium') && env.MEDIUM_TOKEN != '' && env.MEDIUM_AUTHOR_ID != '' }}
         run: |
-          MESSAGE=$(cat "$RUNNER_TEMP/announcement_ru.txt")
+          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file_plain }}")
           jq -n \
             --arg title "${{ steps.announce.outputs.post_title }}" \
             --arg content "$MESSAGE" \
@@ -345,7 +312,7 @@ jobs:
           fi
 
           echo "Publishing $EN_FILE to Telegraph..."
-          TELEGRAPH_URL=$(python scripts/publish_telegraph.py "$EN_FILE" "$SLUG")
+          TELEGRAPH_URL=$(python scripts/publish-telegraph.py "$EN_FILE" "$SLUG")
 
           if [ -n "$TELEGRAPH_URL" ]; then
             echo "Published to Telegraph: $TELEGRAPH_URL"
