@@ -211,14 +211,14 @@ jobs:
             --image "${{ steps.announce.outputs.post_image }}" \
             --chat-id "${TELEGRAM_CHANNEL_ID}"
 
-      - name: Announce English Post to Telegram
-        if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
-        run: |
-          bash scripts/publish-telegram.sh \
-            --message "${{ steps.announce_en.outputs.announce_file }}" \
-            --image "${{ steps.announce_en.outputs.post_image }}" \
-            --chat-id "${TELEGRAM_ENGLISH_CHANNEL_ID}" \
-            --parse-mode ""
+      #- name: Announce English Post to Telegram
+      #  if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
+      #  run: |
+      #    bash scripts/publish-telegram.sh \
+      #      --message "${{ steps.announce_en.outputs.announce_file }}" \
+      #      --image "${{ steps.announce_en.outputs.post_image }}" \
+      #      --chat-id "${TELEGRAM_ENGLISH_CHANNEL_ID}" \
+      #      --parse-mode ""
 
       - name: Announce to Threads
         if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'threads') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
@@ -253,12 +253,10 @@ jobs:
       - name: Announce to Max
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'max') && env.MAX_BOT_TOKEN != '' && env.MAX_CHANNEL_ID != '' }}
         run: |
-          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file }}")
-          jq -n --arg text "$MESSAGE" '{text: $text}' \
-            > "$RUNNER_TEMP/max_payload.json"
-          curl --fail --show-error -s -X POST "https://botapi.max.ru/messages?access_token=${MAX_BOT_TOKEN}&chat_id=${MAX_CHANNEL_ID}" \
-            -H "Content-Type: application/json" \
-            --data "@$RUNNER_TEMP/max_payload.json"
+          bash scripts/publish-max.sh \
+            --message "${{ steps.announce.outputs.announce_file }}" \
+            --image "${{ steps.announce.outputs.post_image }}" \
+            --chat-id "${MAX_CHANNEL_ID}"
 
       - name: Announce to LinkedIn
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'linkedin') && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
