@@ -11,18 +11,18 @@ AUTHOR="${LINKEDIN_AUTHOR}"
 
 # Help
 usage() {
-  echo "Usage: $0 --text \"Message\" [--image \"path/to/image.png\"] [--title \"Image Title\"]"
+  echo "Usage: $0 --message \"path/to/message.txt\" [--image \"path/to/image.png\"] [--title \"Image Title\"]"
   exit 1
 }
 
 # Parse arguments
-TEXT=""
+MESSAGE_FILE=""
 IMAGE=""
 TITLE=""
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    --text) TEXT="$2"; shift ;;
+    --message) MESSAGE_FILE="$2"; shift ;;
     --image) IMAGE="$2"; shift ;;
     --title) TITLE="$2"; shift ;;
     *) echo "Unknown parameter: $1"; usage ;;
@@ -30,10 +30,12 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-if [ -z "$TEXT" ]; then
-  echo "Error: --text is required."
+if [ -z "$MESSAGE_FILE" ] || [ ! -f "$MESSAGE_FILE" ]; then
+  echo "Error: Message file not found at '$MESSAGE_FILE'"
   usage
 fi
+
+TEXT=$(cat "$MESSAGE_FILE")
 
 if [ -z "$TOKEN" ] || [ -z "$AUTHOR" ]; then
   echo "Error: LINKEDIN_TOKEN and LINKEDIN_AUTHOR environment variables must be set."

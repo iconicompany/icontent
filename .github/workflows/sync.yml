@@ -263,11 +263,10 @@ jobs:
       - name: Announce to LinkedIn
         if: ${{ steps.announce.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'linkedin') && env.LINKEDIN_TOKEN != '' && env.LINKEDIN_AUTHOR != '' }}
         run: |
-          MESSAGE=$(cat "${{ steps.announce.outputs.announce_file }}")
           IMAGE="${{ steps.announce.outputs.post_image }}"
           TITLE="${{ steps.announce.outputs.post_title }}"
           
-          ARGS=(--text "$MESSAGE")
+          ARGS=(--message "${{ steps.announce.outputs.announce_file }}")
           if [ -n "$IMAGE" ] && [ -f "$IMAGE" ]; then
             ARGS+=(--image "$IMAGE" --title "$TITLE")
           fi
