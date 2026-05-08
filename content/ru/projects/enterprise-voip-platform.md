@@ -1,8 +1,8 @@
 ---
-title: "Enterprise VoIP Platform"
+title: "Корпоративная VoIP-платформа"
 date: '2026-05-08'
-description: "Full-stack разработка корпоративной VoIP-платформы на базе FusionPBX/FreeSWITCH с HA-инфраструктурой, AI-аналитикой, CRM"
-tags: ['Telecommunications', 'VoIP', 'FusionPBX', 'FreeSWITCH', 'CRM', 'AI', 'DevOps']
+description: "Full-stack разработка корпоративной VoIP-платформы на базе FusionPBX/FreeSWITCH с HA-инфраструктурой, AI-аналитикой, CRM, мессенджером и мобильными приложениями."
+tags: ['Телекоммуникации', 'VoIP', 'FusionPBX', 'FreeSWITCH', 'CRM', 'AI', 'DevOps']
 authors: ['Iconicompany']
 language: 'ru'
 startDate: '2020-01'
@@ -11,187 +11,181 @@ team: 'highload-infrastructure'
 teamLink: '/ru/teams/highload-infrastructure'
 ---
 
-## 📞 Проект: Enterprise VoIP Platform (2020–2026)
+## 📞 Проект: Корпоративная VoIP-платформа (2020–2026)
 
 ### Полное техническое портфолио
 
-- **Индустрия:** Telecommunications / VoIP
-- **Тип:** Full-stack разработка VoIP-платформы
-- **Статус:** Production (10+ серверов, активная эксплуатация)
+* **Отрасль:** Телекоммуникации / VoIP
+* **Тип:** Full-stack разработка VoIP-платформы
+* **Статус:** Production (10+ серверов, активен)
 
-## 📌 Scope проекта
+## 📌 Объем проекта
 
-Корпоративная VoIP-платформа на базе **FusionPBX / FreeSWITCH** с глубокой кастомизацией модулей, оптимизацией производительности и расширенным функционалом.
+Комплексная VoIP-платформа на базе **FusionPBX / FreeSWITCH** с глубокой кастомизацией, оптимизацией производительности и разработкой собственных продуктовых модулей.
 
 ### Масштаб
 
-- 10+ production-серверов (HA-кластеры)
-- 10,000+ одновременных ежедневных звонков
-- 350+ реализованных доработок и фич
-- 15+ сторонних интеграций
-- 99.9%+ uptime на горизонте 5 лет
-- Миллиарды CDR-записей
+* 10+ продуктовых серверов (HA-кластеры)
+* 10 000+ одновременных вызовов ежедневно
+* 350+ внедрений и модификаций функций
+* 15+ сторонних интеграций
+* Аптайм 99.9%+ на протяжении 5 лет
+* Миллиарды записей CDR
 
 ### Выполненные работы
 
-- Расширение и доработка core-модулей FusionPBX
-- Кастомный dialplan и Lua-логика FreeSWITCH
-- Полноценная CRM-платформа с нуля
-- AI-pipeline для анализа разговоров
-- SMS/MMS-платформа с пакетами и биллинг-логикой
-- Мобильные приложения (iOS/Android) + Chrome Extension
-- REST API-экосистема
-- Multi-carrier интеграции и аналитика
-- Управление инфраструктурой и эксплуатацией
+* Расширение и модификация основных модулей FusionPBX
+* Кастомные диалпланы FreeSWITCH и логика на Lua
+* Разработка собственной CRM-платформы с нуля
+* Конвейер анализа звонков на базе AI
+* SMS/MMS платформа с системой управления пакетами
+* Мобильные приложения (iOS/Android) + расширение для Chrome
+* Экосистема REST API
+* Интеграция с несколькими операторами (multi-carrier) и аналитика
+* Управление инфраструктурой и эксплуатацией
 
 ---
 
 ## 🧩 Разработка платформы FusionPBX
 
-### Core-модули (Modified / Extended / Upgraded)
+### Основные модули (Модифицированы / Расширены / Обновлены)
 
-- **Extensions:** режим softphone-only, автоматизация ACL, bulk-операции, управление диапазонами, MAC/caller ID, типы extension, paid/non-paid
-- **Dialplan:** failover между операторами, least-cost/geographic routing, time-based маршрутизация, E911, оптимизация outbound
-- **IVR Menu:** динамические меню из БД, Lua-интеграция, live-тестирование, визуализация call flow, гибкая обработка timeout
-- **Ring Groups / Call Flows / Conference / Recordings:** продвинутые стратегии маршрутизации, управление записями, оптимизация и к�[...]
-- **Time Conditions:** календарная интеграция, интерфейс "what-if", праздники, отладочные инструменты
-- **Call Center:** real-time dashboard, статусы агентов, метрики очередей, callback, supervisor-функции
-- **Voicemail:** управление greetings, интеграция транскрибации, retention-политики, оптимизация MWI
-- **Destinations / Call Routing:** lifecycle DID-номеров, domain assignment, carrier sync, batch-операции, usage tracking
-- **CDR:** AI-анализ, расширенная фильтрация, role-based видимость, partitioning и автоархивация
-- **User / Permissions / Menu Manager:** расширенный RBAC, audit logging, policy controls, массовые операции правами
-- **Contacts:** полный rewrite с группами, валидацией import/export, XML для Yealink, интеграцией с CRM
-- **Email Queue / Fax / Follow Me / MOH / Notes / Event Guard:** повышение надежности, status tracking, безопасность и observability
+* **Extensions (Внутренние номера):** режим «только софтфон», автоматизация ACL, массовые операции, управление диапазонами, контроль MAC и Caller ID, типы номеров, классификация (платные/бесплатные).
+* **Dialplan (Диалплан):** отказоустойчивость при работе с несколькими операторами, маршрутизация по наименьшей стоимости (LCR) и географии, маршрутизация по времени, обработка E911, оптимизация исходящих вызовов.
+* **IVR-меню:** динамические меню на базе БД, интеграция с Lua, live-тестирование, визуализация потоков вызовов, кастомизация тайм-аутов.
+* **Ring Groups / Call Flows / Conference / Recordings:** расширенные контроли маршрутизации, политики записи, улучшение производительности, отслеживание зависимостей.
+* **Time Conditions (Временные условия):** интеграция с календарем, симулятор «что если», логика праздничных дней, инструменты отладки.
+* **Call Center (Колл-центр):** дашборд в реальном времени, метрики очередей, управление обратными звонками (callback), контроли супервизора.
+* **Voicemail (Голосовая почта):** управление приветствиями, интеграция транскрибации, политики хранения, оптимизация MWI.
+* **Destinations / Call Routing:** жизненный цикл DID, назначение доменов, синхронизация с операторами, пакетные операции, отслеживание использования.
+* **CDR (Записи вызовов):** интеграция AI-анализа, продвинутая фильтрация, видимость на основе ролей, автоматизация партиционирования и архивации.
+* **User / Permissions / Menu Manager:** расширенный RBAC, логирование аудита, политики контроля, воркфлоу для массового изменения прав.
+* **Contacts (Контакты):** полная переработка с группами, валидация импорта/экспорта, экспорт XML для Yealink, интеграция с CRM.
+* **Email Queue / Fax / Follow Me / MOH / Notes / Event Guard:** повышение надежности, отслеживание статусов, усиление безопасности и наблюдаемости (observability).
 
-### Кастомные модули
+### Собственные модули
 
-- **Ringotel Integration:** provisioning организаций/аккаунтов, QR onboarding, синхронизация, call park, DND, role model, вклад в официальный Fusi[...]
-- **SMS Packages:** лимиты, billing cycles, MMS point model, логи, обработка STOP/START webhook
-- **Bandwidth DID Management:** inventory sync, статусы заказа, заметки и lifecycle tracking
-- **IPA (Integration/API):** JWT auth, rate limits, IP whitelist, API endpoints, request logging, документация
-- **Analytics Integration:** экспорт данных и multi-carrier аналитика для биллинга
-- **In Use Detection System:** граф зависимостей по модулям с визуальными индикаторами
-- **Label Printing Integration:** интеграция с Label.live, шаблоны и автотриггеры печати
+* **Интеграция с Ringotel:** провижининг организаций/аккаунтов, онбординг через QR, синхронизация, парковка вызовов, DND, ролевая модель; вклад в официальные приложения FusionPBX.
+* **SMS-пакеты:** месячные лимиты, биллинговые циклы, система баллов MMS, логи, обработка вебхуков STOP/START.
+* **Управление Bandwidth DID:** синхронизация инвентаря, статусы заказов, заметки и отслеживание жизненного цикла.
+* **IPA (Integration/API):** авторизация через JWT, лимиты запросов (rate limits), белые списки IP, экосистема эндпоинтов, логирование запросов, документация.
+* **Интеграция аналитики:** экспорт данных от нескольких операторов и биллинговая аналитика.
+* **Система обнаружения зависимостей (In Use Detection):** граф зависимостей между модулями с визуальными подсказками.
+* **Интеграция печати этикеток:** интеграция с Label.live, шаблоны и автоматические триггеры.
 
 ---
 
-## ⚙️ Разработка FreeSWITCH
+## ⚙️ Разработка на FreeSWITCH
 
-### Базовый функционал (Managed / Optimized)
+### Основной функционал (Управление / Оптимизация)
 
-- Multi-tenant SIP registration и endpoint authentication
-- NAT traversal, SIP-TLS, codec negotiation (Opus, G.711, G.722)
-- Multi-context dialplan и emergency routing
-- RTP/SRTP media-потоки, transcoding, conference bridges, call recording
-- Parking, transfer, pickup, voicemail, ACD queues
+* Мультитенантная SIP-регистрация и аутентификация эндпоинтов
+* NAT traversal, SIP-TLS, согласование кодеков (Opus, G.711, G.722)
+* Многоконтекстные диалпланы и аварийная маршрутизация
+* RTP/SRTP медиа-потоки, транскодирование, конференц-мосты, запись звонков
+* Парковка, перевод, перехват, голосовая почта, ACD-очереди
 
 ### Кастомная разработка
 
-- **Lua scripts (100+):** динамический IVR, time/geographic routing, queue/overflow logic, business hours и holiday calculations
-- **ESL daemon (Perl):** real-time events, CRM screen-pop (&lt;300ms), WebSocket bridge, AI trigger hooks
-- **Dialplan customization:** carrier failover, least-cost routing, стратегии записи/перевода/voicemail
-- **Performance tuning:** RTP range, session limits, codec priorities, memory/FD limits, DB pooling
+* **Lua-скрипты (100+):** динамические IVR, географическая маршрутизация, логика очередей и переливов, расчет рабочих часов и праздников.
+* **ESL-демон (Perl):** события в реальном времени, всплывающие окна в CRM (screen-pop &lt;300 мс), WebSocket-бридж, триггеры для AI.
+* **Кастомизация диалплана:** стратегии отказоустойчивости операторов, LCR, стратегии записи/перевода/голосовой почты.
+* **Тюнинг производительности:** диапазоны RTP, лимиты сессий, приоритеты кодеков, лимиты памяти и файловых дескрипторов, пулы БД.
 
 ---
 
-## 🏗 Кастомные приложения
+## 🏗 Собственные приложения
 
-1. **CRM Portal (Angular + Yii)**  
-   Контактные операции, скрипты, распределение задач, click-to-dial WebRTC, real-time dashboards, интеграции с HubSpot/Zoho/FusionPBX.
-
-2. **AI Call Analysis Pipeline**  
-   STT + LLM summary, sentiment, quality score, action items; автоматическая постобработка разговоров.
-
-3. **SMS/MMS Platform**  
-   Пакеты, расписания, шаблоны, compliance (STOP/START), массовые рассылки.
-
-4. **DID Hub**  
-   Multi-carrier lifecycle номеров, pattern search (20+ шаблонов), синхронизация и workflow-автоматизация.
-
-5. **Analytics Engine**  
-   Нормализация CDR из разных источников, billing-отчеты, top-метрики, dashboards, CSV/Excel экспорт.
-
-6. **REST API Platform**  
-   Endpoints для токенов, extensions, destinations, CDR, domain state, SMS; multi-tenant scope и audit trail.
-
-7. **Mobile Apps + Extension**  
-   iOS (Swift), Android (Kotlin), Chrome click-to-dial extension с real-time телеком-функциями.
+1. **CRM-портал (Angular + Yii)**
+Работа с контактами, скрипты продаж, распределение очередей, WebRTC (click-to-dial), дашборды в реальном времени, интеграция с HubSpot/Zoho/FusionPBX.
+2. **Конвейер AI-анализа звонков**
+STT (распознавание речи) + LLM (саммаризация, анализ тональности, оценка качества, план действий); автоматическая постобработка звонка.
+3. **SMS/MMS платформа**
+Лимиты пакетов, планирование рассылок, шаблоны, комплаенс (STOP/START), высокопроизводительная пакетная обработка.
+4. **DID Hub**
+Жизненный цикл номеров от разных операторов, поиск паттернов (20+ премиум-паттернов), автоматизация синхронизации и воркфлоу.
+5. **Движок аналитики**
+Нормализация CDR из разных источников, биллинговые отчеты, ключевые метрики, дашборды, экспорт в CSV/Excel.
+6. **REST API платформа**
+Эндпоинты для токенов, номеров, направлений, CDR, состояний доменов, SMS; мультитенантный доступ и аудит.
+7. **Мобильные приложения + расширение**
+iOS (Swift), Android (Kotlin) и расширение click-to-dial для Chrome с функциями телефонии в реальном времени.
 
 ---
 
 ## 🔌 Сторонние интеграции
 
-- Ringotel
-- Bandwidth (voice/SMS/MMS/number lifecycle)
-- Vitelity (voice/fax/DID)
-- HubSpot
-- Zoho CRM (marketplace app)
-- S3 storage (Wasabi/AWS)
-- SMTP-провайдеры
-- Zabbix monitoring
+* Ringotel
+* Bandwidth (голос/SMS/MMS/номера)
+* Vitelity (голос/факс/DID)
+* HubSpot
+* Zoho CRM (приложение в маркетплейсе)
+* S3 хранилища (Wasabi/AWS)
+* SMTP-провайдеры
+* Мониторинг Zabbix
 
 ---
 
 ## 🛡 Инфраструктура и эксплуатация
 
-### Production-инфраструктура
+### Продуктовая инфраструктура
 
-- 10+ production-серверов
-- Active-active HA-кластеры
-- Multi-datacenter deployment
-- PostgreSQL streaming replication (&lt;1s lag)
-- Automatic failover (&lt;30s)
+* 10+ продуктовых серверов
+* HA-кластеры Active-active
+* Развертывание в нескольких дата-центрах
+* Потоковая репликация PostgreSQL (задержка &lt;1с)
+* Автоматическое переключение (failover &lt;30с)
 
 ### Данные и надежность
 
-- PostgreSQL partitioning для CDR (помесячно)
-- Materialized views и оптимизированные индексы
-- Redis для cache/pub-sub/rate limits
-- Daily dumps + WAL archiving + S3 backups
-- Disaster recovery: **RTO &lt; 15 min**, **RPO &lt; 5 min**
+* Партиционирование PostgreSQL для CDR (помесячно)
+* Материализованные представления и оптимизированное индексирование
+* Redis для кэширования, Pub/Sub и лимитов (rate limits)
+* Ежедневные дампы + архивация WAL + удаленные бэкапы в S3
+* Аварийное восстановление: **RTO &lt; 15 мин**, **RPO &lt; 5 мин**
 
 ### Безопасность и мониторинг
 
-- Fail2Ban custom jails
-- Firewall/IP whitelist интерфейсы
-- Автообновление SSL/TLS (Let’s Encrypt)
-- Мониторинг целостности файлов и alerting
-- VoIP-метрики в Zabbix и escalation policies
+* Кастомные правила Fail2Ban
+* Интерфейсы управления файерволом и белыми списками IP
+* Автоматизация SSL/TLS (Let’s Encrypt)
+* Мониторинг целостности файлов и алертинг
+* Специфичные для VoIP метрики Zabbix и политики эскалации
 
 ---
 
-## 📈 Production-метрики
+## 📈 Производственные показатели
 
-- **Uptime:** 99.9%+ за 5 лет
-- **Data loss:** 0 критических инцидентов
-- **Daily concurrency:** 10,000+ звонков
-- **CDR volume:** миллиарды записей (partitioned)
-- **Replication lag:** &lt;1s в среднем
-- **API response:** &lt;100ms (p95)
-- **Screen-pop latency:** &lt;300ms
-- **Failover time:** &lt;30s
-- **SMS throughput:** 100k+ сообщений/день
+* **Аптайм:** 99.9%+ за 5 лет
+* **Потеря данных:** 0 критических инцидентов
+* **Ежедневная нагрузка:** 10 000+ одновременных звонков
+* **Объем CDR:** миллиарды записей (партиционированных)
+* **Задержка репликации:** &lt;1с в среднем
+* **Отклик API:** &lt;100 мс (p95)
+* **Задержка Screen-pop:** &lt;300 мс
+* **Время переключения при отказе:** &lt;30 с
+* **Пропускная способность SMS:** 100k+ сообщений в день
 
 ---
 
 ## 🧪 Базовый технологический стек
 
-- **VoIP:** FreeSWITCH 1.10.x, FusionPBX 5.x, SIP/SIP-TLS, WebRTC
-- **Backend:** PHP 8.x, Lua 5.1, Perl 5.x, Python 3.9+, Kotlin
-- **Frontend:** Angular 14+, TypeScript, RxJS, Bootstrap 5, Chart.js
-- **Mobile:** Swift (iOS), Kotlin (Android)
-- **Databases:** PostgreSQL 14+, Redis 6.x, MySQL 8.0
-- **Infra:** Ubuntu 22.04/24.04, Nginx 1.18+, Zabbix 6.x, Fail2Ban
-- **Cloud:** Wasabi S3, AWS S3
-- **AI/ML:** Whisper, Ollama, custom Kotlin STT
+* **VoIP:** FreeSWITCH 1.10.x, FusionPBX 5.x, SIP/SIP-TLS, WebRTC
+* **Backend:** PHP 8.x, Lua 5.1, Perl 5.x, Python 3.9+, Kotlin
+* **Frontend:** Angular 14+, TypeScript, RxJS, Bootstrap 5, Chart.js
+* **Mobile:** Swift (iOS), Kotlin (Android)
+* **Базы данных:** PostgreSQL 14+, Redis 6.x, MySQL 8.0
+* **Инфраструктура:** Ubuntu 22.04/24.04, Nginx 1.18+, Zabbix 6.x, Fail2Ban
+* **Cloud:** Wasabi S3, AWS S3
+* **AI/ML:** Whisper, Ollama, кастомный STT на Kotlin
 
 ---
 
-## ✅ Deliverables Summary
+## ✅ Итоговые результаты
 
-- 30+ модулей FusionPBX модифицированы/расширены
-- 10+ кастомных модулей FusionPBX разработаны с нуля
-- 100+ Lua-скриптов для FreeSWITCH
-- 15+ сторонних интеграций
-- CRM Portal, AI Pipeline, SMS Platform, DID Hub, Analytics Engine, REST API, Mobile Apps, Chrome Extension
-- 10+ production-серверов с HA, мониторингом и security hardening
+* 30+ модифицированных/расширенных модулей FusionPBX
+* 10+ разработанных с нуля модулей FusionPBX
+* 100+ Lua-скриптов для FreeSWITCH
+* 15+ сторонних интеграций
+* CRM-портал, AI-конвейер, SMS-платформа, DID Hub, движок аналитики, REST API, мобильные приложения, расширение для Chrome
+* 10+ защищенных продуктовых серверов с HA и мониторингом
