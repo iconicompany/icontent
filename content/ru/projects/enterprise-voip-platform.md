@@ -1,7 +1,7 @@
 ---
 title: "Enterprise VoIP Platform"
 date: '2026-05-08'
-description: "Full-stack разработка корпоративной VoIP-платформы на базе FusionPBX/FreeSWITCH с HA-инфраструктурой, AI-аналитикой, CRM, мессенджингом и мобильными приложениями."
+description: "Full-stack разработка корпоративной VoIP-платформы на базе FusionPBX/FreeSWITCH с HA-инфраструктурой, AI-аналитикой, CRM, [...]
 tags: ['Telecommunications', 'VoIP', 'FusionPBX', 'FreeSWITCH', 'CRM', 'AI', 'DevOps']
 authors: ['Iconicompany']
 language: 'ru'
@@ -21,7 +21,7 @@ teamLink: '/ru/teams/highload-infrastructure'
 
 ## 📌 Scope проекта
 
-Корпоративная VoIP-платформа на базе **FusionPBX / FreeSWITCH** с глубокой кастомизацией модулей, оптимизацией производительности и разработкой собственных подсистем.
+Корпоративная VoIP-платформа на базе **FusionPBX / FreeSWITCH** с глубокой кастомизацией модулей, оптимизацией производит[...]
 
 ### Масштаб
 
@@ -53,7 +53,7 @@ teamLink: '/ru/teams/highload-infrastructure'
 - **Extensions:** режим softphone-only, автоматизация ACL, bulk-операции, управление диапазонами, MAC/caller ID, типы extension, paid/non-paid
 - **Dialplan:** failover между операторами, least-cost/geographic routing, time-based маршрутизация, E911, оптимизация outbound
 - **IVR Menu:** динамические меню из БД, Lua-интеграция, live-тестирование, визуализация call flow, гибкая обработка timeout
-- **Ring Groups / Call Flows / Conference / Recordings:** продвинутые стратегии маршрутизации, управление записями, оптимизация и контроль зависимостей
+- **Ring Groups / Call Flows / Conference / Recordings:** продвинутые стратегии маршрутизации, управление записями, оптимизация и к�[...]
 - **Time Conditions:** календарная интеграция, интерфейс "what-if", праздники, отладочные инструменты
 - **Call Center:** real-time dashboard, статусы агентов, метрики очередей, callback, supervisor-функции
 - **Voicemail:** управление greetings, интеграция транскрибации, retention-политики, оптимизация MWI
@@ -65,7 +65,7 @@ teamLink: '/ru/teams/highload-infrastructure'
 
 ### Кастомные модули
 
-- **Ringotel Integration:** provisioning организаций/аккаунтов, QR onboarding, синхронизация, call park, DND, role model, вклад в официальный FusionPBX apps
+- **Ringotel Integration:** provisioning организаций/аккаунтов, QR onboarding, синхронизация, call park, DND, role model, вклад в официальный Fusi[...]
 - **SMS Packages:** лимиты, billing cycles, MMS point model, логи, обработка STOP/START webhook
 - **Bandwidth DID Management:** inventory sync, статусы заказа, заметки и lifecycle tracking
 - **IPA (Integration/API):** JWT auth, rate limits, IP whitelist, API endpoints, request logging, документация
@@ -88,7 +88,7 @@ teamLink: '/ru/teams/highload-infrastructure'
 ### Кастомная разработка
 
 - **Lua scripts (100+):** динамический IVR, time/geographic routing, queue/overflow logic, business hours и holiday calculations
-- **ESL daemon (Perl):** real-time events, CRM screen-pop (<300ms), WebSocket bridge, AI trigger hooks
+- **ESL daemon (Perl):** real-time events, CRM screen-pop (&lt;300ms), WebSocket bridge, AI trigger hooks
 - **Dialplan customization:** carrier failover, least-cost routing, стратегии записи/перевода/voicemail
 - **Performance tuning:** RTP range, session limits, codec priorities, memory/FD limits, DB pooling
 
@@ -139,8 +139,8 @@ teamLink: '/ru/teams/highload-infrastructure'
 - 10+ production-серверов
 - Active-active HA-кластеры
 - Multi-datacenter deployment
-- PostgreSQL streaming replication (<1s lag)
-- Automatic failover (<30s)
+- PostgreSQL streaming replication (&lt;1s lag)
+- Automatic failover (&lt;30s)
 
 ### Данные и надежность
 
@@ -148,7 +148,7 @@ teamLink: '/ru/teams/highload-infrastructure'
 - Materialized views и оптимизированные индексы
 - Redis для cache/pub-sub/rate limits
 - Daily dumps + WAL archiving + S3 backups
-- Disaster recovery: **RTO < 15 min**, **RPO < 5 min**
+- Disaster recovery: **RTO &lt; 15 min**, **RPO &lt; 5 min**
 
 ### Безопасность и мониторинг
 
@@ -166,10 +166,10 @@ teamLink: '/ru/teams/highload-infrastructure'
 - **Data loss:** 0 критических инцидентов
 - **Daily concurrency:** 10,000+ звонков
 - **CDR volume:** миллиарды записей (partitioned)
-- **Replication lag:** <1s в среднем
-- **API response:** <100ms (p95)
-- **Screen-pop latency:** <300ms
-- **Failover time:** <30s
+- **Replication lag:** &lt;1s в среднем
+- **API response:** &lt;100ms (p95)
+- **Screen-pop latency:** &lt;300ms
+- **Failover time:** &lt;30s
 - **SMS throughput:** 100k+ сообщений/день
 
 ---
