@@ -1,12 +1,12 @@
 ---
 title: "Автоматизация маркетинга и АРМ оператора контакт-центра"
-date: '2026-05-01'
+date: '2020-03-01'
 description: "Создание микросервисной экосистемы для управления маркетинговыми кампаниями, сегментации клиентов и автоматизации исходящего обзвона через Asterisk."
 tags: ['Fintech', 'Microservices', 'React', 'Asterisk', 'CRM']
 authors: ['Iconicompany']
 language: 'ru'
-startDate: '2024-03'
-endDate: '2026-05'
+startDate: '2019-03'
+endDate: '2020-05'
 team: 'fintech-banking'
 teamLink: '/ru/teams/fintech-banking'
 ---
