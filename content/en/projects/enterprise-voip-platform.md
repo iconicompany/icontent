@@ -88,7 +88,7 @@ Complete VoIP platform based on **FusionPBX / FreeSWITCH** with deep customizati
 ### Custom Development
 
 - **Lua scripts (100+):** dynamic IVR, time/geographic routing, queue and overflow logic, business hour and holiday calculations
-- **ESL daemon (Perl):** real-time events, CRM screen-pop (<300ms), WebSocket bridge, AI trigger hooks
+- **ESL daemon (Perl):** real-time events, CRM screen-pop (&lt;300ms), WebSocket bridge, AI trigger hooks
 - **Dialplan customization:** carrier failover, least-cost routing, recording/transfer/voicemail strategies
 - **Performance tuning:** RTP range, session limits, codec priorities, memory and FD limits, DB pooling
 
@@ -139,8 +139,8 @@ Complete VoIP platform based on **FusionPBX / FreeSWITCH** with deep customizati
 - 10+ production servers
 - Active-active HA clusters
 - Multi-datacenter deployment
-- PostgreSQL streaming replication (<1s lag)
-- Automatic failover (<30s)
+- PostgreSQL streaming replication (&lt;1s lag)
+- Automatic failover (&lt;30s)
 
 ### Data & Reliability
 
@@ -148,7 +148,7 @@ Complete VoIP platform based on **FusionPBX / FreeSWITCH** with deep customizati
 - Materialized views and optimized indexing
 - Redis for caching/pub-sub/rate limits
 - Daily dumps + WAL archiving + S3 offsite backups
-- Disaster recovery: **RTO < 15 min**, **RPO < 5 min**
+- Disaster recovery: **RTO &lt; 15 min**, **RPO &lt; 5 min**
 
 ### Security & Monitoring
 
@@ -166,10 +166,10 @@ Complete VoIP platform based on **FusionPBX / FreeSWITCH** with deep customizati
 - **Data loss:** 0 critical incidents
 - **Daily concurrency:** 10,000+ calls
 - **CDR volume:** billions of records (partitioned)
-- **Replication lag:** <1s average
-- **API response:** <100ms (p95)
-- **Screen-pop latency:** <300ms
-- **Failover time:** <30s
+- **Replication lag:** &lt;1s average
+- **API response:** &lt;100ms (p95)
+- **Screen-pop latency:** &lt;300ms
+- **Failover time:** &lt;30s
 - **SMS throughput:** 100k+ messages/day
 
 ---

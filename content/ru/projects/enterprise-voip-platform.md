@@ -1,7 +1,7 @@
 ---
 title: "Enterprise VoIP Platform"
 date: '2026-05-08'
-description: "Full-stack разработка корпоративной VoIP-платформы на базе FusionPBX/FreeSWITCH с HA-инфраструктурой, AI-аналитикой, CRM, [...]
+description: "Full-stack разработка корпоративной VoIP-платформы на базе FusionPBX/FreeSWITCH с HA-инфраструктурой, AI-аналитикой, CRM"
 tags: ['Telecommunications', 'VoIP', 'FusionPBX', 'FreeSWITCH', 'CRM', 'AI', 'DevOps']
 authors: ['Iconicompany']
 language: 'ru'
@@ -21,7 +21,7 @@ teamLink: '/ru/teams/highload-infrastructure'
 
 ## 📌 Scope проекта
 
-Корпоративная VoIP-платформа на базе **FusionPBX / FreeSWITCH** с глубокой кастомизацией модулей, оптимизацией производит[...]
+Корпоративная VoIP-платформа на базе **FusionPBX / FreeSWITCH** с глубокой кастомизацией модулей, оптимизацией производительности и расширенным функционалом.
 
 ### Масштаб
 
