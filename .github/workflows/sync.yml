@@ -211,14 +211,13 @@ jobs:
             --image "${{ steps.announce.outputs.post_image }}" \
             --chat-id "${TELEGRAM_CHANNEL_ID}"
 
-      #- name: Announce English Post to Telegram
-      #  if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
-      #  run: |
-      #    bash scripts/publish-telegram.sh \
-      #      --message "${{ steps.announce_en.outputs.announce_file }}" \
-      #      --image "${{ steps.announce_en.outputs.post_image }}" \
-      #      --chat-id "${TELEGRAM_ENGLISH_CHANNEL_ID}" \
-      #      --parse-mode ""
+      - name: Announce English Post to Telegram
+        if: ${{ steps.announce_en.outputs.has_post == 'true' && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'telegram') && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_ENGLISH_CHANNEL_ID != '' }}
+        run: |
+          bash scripts/publish-telegram.sh \
+            --message "${{ steps.announce_en.outputs.announce_file }}" \
+            --image "${{ steps.announce_en.outputs.post_image }}" \
+            --chat-id "${TELEGRAM_ENGLISH_CHANNEL_ID}" \
 
       - name: Announce to Threads
         if: ${{ (steps.announce.outputs.has_post == 'true' || steps.announce_en.outputs.has_post == 'true') && !contains(steps.files.outputs.exclude, 'all') && !contains(steps.files.outputs.exclude, 'threads') && env.THREADS_TOKEN != '' && env.THREADS_USER_ID != '' }}
