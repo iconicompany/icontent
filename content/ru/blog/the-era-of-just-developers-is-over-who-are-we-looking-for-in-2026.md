@@ -1,71 +1,56 @@
 ---
-title: "The Era of 'Just Developers' is Over. Who Are We Looking For in 2026?"
+title: "Эра «просто разработчиков» прошла. Кого мы ищем в 2026 году?"
 date: '2026-05-12'
-description: "The IT market is rapidly changing, moving beyond traditional developer roles. We're seeking product-focused, AI-leveraging engineers who automate everything and prioritize delivery, ready to tackle challenges in AI-native development, complex Fintech, and multi-agent systems."
-tags: ["AI","developer-roles","engineering-culture","fintech","high-load","automation","tech-careers","future-of-dev","recruitment"]
+description: "IT-рынок стремительно меняется, выходя за рамки традиционных ролей. Мы ищем продуктоориентированных инженеров, использующих AI, которые автоматизируют всё вокруг, ставят доставку ценности в приоритет и готовы решать задачи в области AI-native разработки, сложного Fintech и мультиагентных систем."
+tags: ["AI","роли-разработчиков","инженерная-культура","fintech","high-load","автоматизация","it-карьера","будущее-разработки","найм"]
 authors: ['slavb18']
 language: 'ru'
----
 
-![The Era of Just Developers is Over. Who Are We Looking For in 2026?](../../../assets/blog/the-era-of-just-developers-is-over-who-are-we-looking-for-in-2026.png)
+IT-рынок развивается быстрее, чем обновляются должностные инструкции. Мы видим это ежедневно: традиционные ярлыки вроде «Java-разработчик» или «React-инженер» стираются, уступая место новой инженерной культуре.
 
-The IT market is evolving faster than job descriptions can keep up. We see it daily: traditional labels like "Java developer" or "React engineer" are fading, giving way to a new engineering culture.
+### 🚀 Что изменилось?
 
-### 🚀 What Has Changed?
+Сегодня ценность инженера определяется не только знанием синтаксиса или фреймворка, но и способностью превратить идею в работающий сервис с минимальным сопротивлением.
 
-Today, an engineer's value is defined not just by syntax or framework knowledge, but by the ability to transform an idea into a working production service with minimal friction.
+**Мы ищем тех, кто:**
 
-**We are looking for those who:**
+* 🤖 **Использует AI как мультипликатор силы:** Не просто «слышал о Copilot», а интегрировал LLM в свой ежедневный воркфлоу, чтобы автоматизировать рутину и сфокусироваться на архитектуре.
+* 🎯 **Думает о продукте:** Понимает, зачем пишется микросервис и какую бизнес-задачу он решает.
+* ⚙️ **Автоматизирует всё:** Если задачу пришлось делать вручную дважды — она должна быть автоматизирована.
+* ✅ **Ориентирован на доставку (Deliver-first):** Тот, кто нацелен на результат и может довести фичу до пользователя, понимая весь CI/CD пайплайн.
 
-*   🤖 **Leverage AI as a force multiplier:** Not just "heard about Copilot," but integrated LLMs into their daily workflow to automate routine tasks and focus on architecture.
+### 🛠️ С чем вы будете работать?
 
-*   🎯 **Think product-first:** Understand why a microservice is being written and what business problem it solves.
+Мы сотрудничаем с крупнейшими игроками рынка (Fintech, High-load, AI-платформы), где задачи выходят далеко за рамки типичных CRUD-операций.
 
-*   ⚙️ **Automate everything:** If a task can be avoided doing manually twice, it should be automated.
+**Наши текущие фокусы:**
 
-*   ✅ **Deliver-first:** A results-oriented individual who can bring a feature to the user, understanding the entire CI/CD pipeline.
+* 🧠 **AI-native разработка:** Создание систем, где нейросети — не надстройка, а часть ядра.
+* 💳 **Сложный Fintech:** Высоконагруженные платформенные решения и платежные системы.
+* 🤝 **Мультиагентные системы:** Разработка и внедрение протоколов взаимодействия агентов для автоматизации бизнес-процессов.
 
-### 🛠️ What You'll Be Working With?
+### 🌟 Открытые роли:
 
-We collaborate with major market players (Fintech, High-load, AI Platforms), where challenges extend beyond typical CRUD operations.
+Сейчас мы расширяем команды по следующим направлениям:
 
-**Our current focuses include:**
+1. 💻 **Backend / Frontend / Fullstack** (Стек: Python/Go/Java/Node/React)
+2. 🤖 **AI / ML инженеры** (LLM, RAG, агентные воркфлоу)
+3. ☁️ **DevOps / Platform инженеры** (K8s, High-load инфраструктура)
+4. 🧠 **Tech Lead** (Для тех, кто готов строить процессы и архитектуру с нуля)
+5. 💡 **Product-инженеры** (Разработчики с сильным продуктовым бэкграундом)
+6. ✨ **AI-native разработчики** (Специалисты, мастерски владеющие инструментами генеративной разработки)
 
-*   🧠 **AI-native Development:** Creating systems where neural networks are not an add-on, but part of the core.
+### ✨ Почему стоит к нам присоединиться?
 
-*   💳 **Complex Fintech:** High-load platform solutions and payment systems.
+* ⚡ **Скорость важнее бюрократии:** Мы ценим время и здравый смысл больше, чем бесконечные митинги.
+* 🛠️ **Инженерная свобода:** Выбираем инструменты под задачу, а не потому что «так всегда делали».
+* 🤝 **Сильное комьюнити:** Работа с людьми, которые живут технологиями и постоянно исследуют новые горизонты (от Text-to-SQL до A2A-протоколов).
 
-*   🤝 **Multi-agent Systems:** Developing and implementing agent protocols for business process automation.
+**Готовы строить будущее без багажа старых стереотипов?**
 
-### 🌟 Open Roles:
+👉 Откликайтесь: [https://iconicompany.com/jobs](https://iconicompany.com/jobs)
 
-We are currently expanding our teams in the following areas:
-
-1.  💻 **Backend / Frontend / Fullstack** (Stack: Python/Go/Java/Node/React)
-
-2.  🤖 **AI / ML Engineers** (LLM, RAG, Agentic workflows)
-
-3.  ☁️ **DevOps / Platform Engineers** (K8s, High-load infrastructure)
-
-4.  🧠 **Tech Lead** (For those ready to build processes and architecture from scratch)
-
-5.  💡 **Product Engineers** (Developers with a strong product background)
-
-6.  ✨ **AI-native Developers** (Specialists expertly proficient in generative development tools)
-
-### ✨ Why Join Us?
-
-*   ⚡ **Speed over Bureaucracy:** We value time and common sense more than endless meetings.
-
-*   🛠️ **Engineering Freedom:** We choose tools based on the task, not because "that's how it's always been done."
-
-*   🤝 **Strong Community:** Work alongside people who live and breathe technology, constantly exploring new frontiers (from Text-to-SQL to A2A protocols).
-
-**Ready to build the future without legacy mindset?**
-
-👉 Apply now: https://iconicompany.com/jobs
-
-Or connect with our AI agent via Telegram: https://t.me/iconicompanybot to find your perfect role!
+Или свяжитесь с нашим AI-агентом в Telegram: [https://t.me/iconicompanybot](https://t.me/iconicompanybot), чтобы найти свою идеальную роль!
 
 ---
 
