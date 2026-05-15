@@ -24,19 +24,22 @@ OVERRIDE_TITLE=""
 OVERRIDE_SLUG=""
 OVERRIDE_DATE=""
 INPUT_FILE=""
-
-# Check if the first argument is a file
-if [ -f "$1" ]; then
-  INPUT_FILE="$1"
-  shift
-fi
+IMAGE_PATH=""
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --title) OVERRIDE_TITLE="$2"; shift ;;
     --slug|-s) OVERRIDE_SLUG="$2"; shift ;;
     --date) OVERRIDE_DATE="$2"; shift ;;
-    *) echo "Unknown parameter: $1"; exit 1 ;;
+    --post|-p) INPUT_FILE="$2"; shift ;;
+    --image|-i) IMAGE_PATH="$2"; shift ;;
+    *) 
+      if [ -f "$1" ] && [ -z "$INPUT_FILE" ]; then
+        INPUT_FILE="$1"
+      else
+        echo "Unknown parameter: $1"; exit 1
+      fi
+      ;;
   esac
   shift
 done
@@ -163,6 +166,14 @@ EOF
 # Remove old file if it was a rename
 if [ -n "$OLD_FILE" ] && [ "$OLD_FILE" != "$FINAL_FILENAME" ]; then
   rm "$OLD_FILE"
+fi
+
+# Handle manual image if provided
+if [ -n "$IMAGE_PATH" ] && [ -f "$IMAGE_PATH" ]; then
+  echo "--- Using provided image: $IMAGE_PATH ---"
+  mkdir -p "assets/blog"
+  # Copy to assets/blog/$SLUG.png (add-image.sh expects .png)
+  cp "$IMAGE_PATH" "assets/blog/$SLUG.png"
 fi
 
 # Post-processing

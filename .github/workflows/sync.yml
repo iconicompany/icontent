@@ -98,7 +98,7 @@ jobs:
           echo "Finalizing $FILE..."
           
           # Run add-post.sh. It will handle frontmatter, read also, image, and renaming if needed.
-          OUTPUT=$(bash scripts/add-post.sh "$FILE")
+          OUTPUT=$(bash scripts/add-post.sh -p "$FILE")
           echo "$OUTPUT"
           
           # Extract the final filename from the last line (using grep and awk)
