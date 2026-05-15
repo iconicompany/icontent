@@ -11,7 +11,7 @@ language: 'en'
 
 ### Vibe Coding: From Idea to a Working Prototype in a Couple of Hours
 
-Today, speed is more important than endless architectural discussions. We launched the beta version of [Smart Project Estimation](https://iproject.iconicompany.com/) — a tool that structures chaotic requirements and estimates project scope in just a couple of minutes.
+Today, speed is more important than endless architectural discussions. We launched the beta version of [Smart Project Estimation](https://iproject.iconicompany.com/) - a tool that structures chaotic requirements and estimates project scope in just a couple of minutes.
 
 The most interesting part here isn't just the functionality, but how it was built. This is pure **vibe coding**.
 
@@ -45,7 +45,7 @@ But for a prototype, it's an **ideal solution**. The entire frontend lives in on
 
 One issue we encountered: local PDF parsing worked perfectly, but on Vercel (in Serverless functions), it flat out refused to work. I had to "Google it" and adapt the imports.
 
-Here’s an example of the backend handler (simple, straightforward, no extra abstractions):
+Here's an example of the backend handler (simple, straightforward, no extra abstractions):
 
 ```typescript
 app.post('/api/extract-text', upload.single('file'), async (req, res) => {
@@ -95,9 +95,9 @@ app.post('/api/ai/detail', async (req, res) => {
 
 #### Conclusion
 
-The biggest market shift right now isn't just the existence of AI. It's the fact that the speed gap between teams has become x5–x10. While some argue over which framework is "more correct," others use vibe coding to test a hypothesis and gather feedback.
+The biggest market shift right now isn't just the existence of AI. It's the fact that the speed gap between teams has become x5-x10. While some argue over which framework is "more correct," others use vibe coding to test a hypothesis and gather feedback.
 
-We look forward to your feedback! If the project "takes off," we'll rewrite it according to SOLID. For now — enjoy, it works!
+We look forward to your feedback! If the project "takes off," we'll rewrite it according to SOLID. For now - enjoy, it works!
 
 ---
 
