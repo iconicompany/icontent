@@ -93,6 +93,20 @@ app.post('/api/ai/detail', async (req, res) => {
 
 ---
 
+#### JSON Pain and LiteLLM
+
+Another nuance emerged when moving from working directly with Gemini to using the **LiteLLM** gateway (to connect OpenAI models and others).
+
+In the original "vibe-coded" version with pure Gemini, there were almost no JSON parsing issues. But as soon as the proxy gateway was introduced, weird things started happening: extra line breaks inside values, "broken" quotes, and other artifacts that broke the standard `JSON.parse`.
+
+Instead of spending hours tweaking prompts, we released the solution as an open-source library:
+
+⚡ **[@iconicompany/sanitizejson](https://github.com/iconicompany/sanitizejson)**
+
+This is a small wrapper around the powerful `@qraftr/json-repair`. Why not use it directly? Because even it sometimes fails with specific LLM gateway "glitches" (like when a string is cut off in the middle or contains unescaped literals). Our utility adds a layer of heuristics that "glues" such pieces together before they hit the main parser.
+
+---
+
 #### Conclusion
 
 The biggest market shift right now isn't just the existence of AI. It's the fact that the speed gap between teams has become x5-x10. While some argue over which framework is "more correct," others use vibe coding to test a hypothesis and gather feedback.
