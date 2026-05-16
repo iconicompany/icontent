@@ -1,5 +1,5 @@
 ---
-title: "AI-native разработка 2026: почему Jira, резюме и "сеньор на галере" начинают ломаться"
+title: "AI-native разработка 2026: почему Jira, резюме и 'сеньор на галере' начинают ломаться"
 date: '2026-05-16'
 description: "This post explores the shift towards AI-native engineering, moving beyond traditional development paradigms. It delves into how tools like Hermes (memory as infrastructure), DeerFlow (orchestration), Multica (observability for AI teams), and Claude Code workflows (specialized agents) are transforming the industry. The author argues that this evolution changes hiring practices, team structures, and redefines the role of an engineer, emphasizing orchestration and systems thinking over mere coding skills."
 tags: ["AI-native development","AI engineering","Software development","Orchestration","Developer roles","Hiring","Future of tech","Hermes","DeerFlow","Multica","Claude Code workflows"]
