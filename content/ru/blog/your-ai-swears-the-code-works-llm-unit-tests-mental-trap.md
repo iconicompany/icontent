@@ -31,7 +31,7 @@ language: 'ru'
 
 Что такое юнит-тест с заглушками (моками)? Это проверка кода против **вашего предположения** о том, как ведет себя внешняя среда. 🤔
 
-python
+```python
 # Типичный юнит-тест, сгенерированный ИИ
 def test_payment_processing(mock_stripe_api):
     # Мы сами заставили мок вернуть True
@@ -39,6 +39,7 @@ def test_payment_processing(mock_stripe_api):
 
     result = process_order(order_id=123)
     assert result.is_paid == True
+```
 
 
 
