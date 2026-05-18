@@ -1,7 +1,7 @@
 ---
-title: "Your AI Swears the Code Works? Why Unit Tests with Mocks are a Mental Trap in the LLM Era"
+title: "ИИ клянется, что код работает? Почему юнит-тесты с моками стали ментальной ловушкой в эпоху LLM"
 date: '2026-05-18'
-description: "AI-generated code often passes unit tests only to fail in production. This post explores why relying on unit tests with mocks, especially when crafted by LLMs, is a mental trap, leading to an 'Intent Gap' and false confidence. Discover why deterministic integration tests are crucial in the era of AI-assisted coding."
+description: "Код, сгенерированный ИИ, часто успешно проходит юнит-тесты, но спотыкается в продакшене. В этой статье мы разберем, почему слепая вера в модульные тесты с моками — особенно когда их пишут сами LLM — это ментальная ловушка, которая приводит к «разрыву намерений» (Intent Gap) и ложному чувству уверенности. Узнайте, почему в эпоху AI-assisted разработки критически важно переходить на детерминированные интеграционные тесты."
 tags: ["AI Development","LLM","Software Testing","Unit Testing","Integration Testing","Mocks","Coding Best Practices","AI Assisted Coding","Production Readiness"]
 authors: ['slavb18']
 language: 'ru'
