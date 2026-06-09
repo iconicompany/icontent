@@ -11,13 +11,15 @@ const BLOG_DIR = path.join(process.cwd(), 'content/ru/blog');
 function getFrontmatter(content: string) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return null;
-  const lines = match[1].split('\n');
+  const contentGroup = match[1];
+  if (!contentGroup) return null;
+  const lines = contentGroup.split('\n');
   const metadata: Record<string, any> = {};
   
   lines.forEach(line => {
     const [key, ...rest] = line.split(':');
     if (key && rest.length) {
-      let value = rest.join(':').trim();
+      let value: any = rest.join(':').trim();
       // Simple parsing for strings and arrays
       if (value.startsWith('"') && value.endsWith('"')) {
         value = value.substring(1, value.length - 1);
@@ -26,7 +28,7 @@ function getFrontmatter(content: string) {
       } else if (value.startsWith('[') && value.endsWith(']')) {
         try {
           // Convert array string to real array
-          value = value.slice(1, -1).split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+          value = value.slice(1, -1).split(',').map((s: string) => s.trim().replace(/^['"]|['"]$/g, ''));
         } catch (e) {
           value = [];
         }
