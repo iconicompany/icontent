@@ -60,7 +60,7 @@ This is the most interesting part. The CALM autoencoder is not a "transformer en
 
 ### Base Block: AELayer (MLP, No Attention)
 
-python
+```python
 class AELayer(nn.Module):
     def __init__(self, config):
         self.mlp = LlamaMLP(config)                 # SwiGLU as in LLaMA
@@ -71,7 +71,7 @@ class AELayer(nn.Module):
         hidden_states = self.layernorm(hidden_states)
         hidden_states = self.mlp(hidden_states)
         return residual + hidden_states             # pre-norm + residual
-
+```
 
 No attention whatsoever. This is crucial: the autoencoder processes each patch of K tokens **independently** of its neighbors. Its task is local chunk compression/decompression, not modeling long-range dependencies. Context and sequence are already the job of the autoregressive model in stage 2. Therefore, the AE can be made cheap and fast.
 
@@ -88,14 +88,14 @@ Data flow (for K=`patch_size`=4, `hidden_size`=512, `latent_size`=128):
 
 Why 256, not 128? Because this is a **VAE**: 256 = `latent_size·2` - half for `mean`, half for `log_std`.
 
-python
+```python
 mean, log_std = torch.chunk(latent_states, 2, dim=-1)   # 128 each
 std = torch.exp(log_std)
 eps = torch.randn_like(mean)
 latent_states = mean + eps * std                        # reparameterization
 kl_loss = 0.5 * (mean**2 + std**2 - 1 - 2*log_std)
 kl_loss = torch.clamp(kl_loss, min=config.kl_clamp).sum(-1).mean()
-
+```
 
 So the latent is not just a vector, but parameters of a Gaussian from which it is sampled. The KL term with `kl_clamp=0.5` and `kl_weight=1e-3` regularizes the space to be smooth (important for stage 2, where autoregression needs to "walk" through it).
 
@@ -111,11 +111,11 @@ Symmetric to the encoder:
 
 The reconstruction loss is standard cross-entropy per token, in training mode multiplied by `patch_size` and added to KL:
 
-python
+```python
 loss = CrossEntropy(logits, labels)
 if self.training:
     loss = loss * patch_size + kl_loss * kl_weight
-
+```
 
 ### Hyperparameters (Default Config)
 
@@ -144,11 +144,11 @@ In the original work, the autoencoder is trained on ~15 billion tokens from the 
 
 `jobs_requirements.jsonl` - 18,065 short strings of requirements from IT job postings, a mix of Russian and English:
 
-json
+```json
 {"text": "React JS 18+"}
 {"text": "Понимание REST API"}
 {"text": "Уверенное знание JavaScript: замыкания, асинхронное программирование (async/await | Promises), ES6+"}
-
+```
 
 In total, after tokenization and concatenation, we got ~340k tokens. This is, of course, five to six orders of magnitude less than the original - so this is a **proof-of-concept of domain adaptation, not a reproduction of the paper's results**. Let's agree on this upfront, to honestly look at the numbers later.
 
@@ -176,9 +176,9 @@ A machine without a graphics card: **62 GB RAM, 28 CPU cores, neither `nvidia-sm
 
 `requirements.txt` pulls `flash-attn==2.1.1`, which requires `nvcc` for compilation and a GPU for runtime. It simply cannot be installed on a CPU-only machine. The solution is to install everything else, excluding it:
 
-bash
+```bash
 grep -v '^flash-attn' requirements.txt | uv pip install -r /dev/stdin
-
+```
 
 Fortunately, the autoencoder itself does not use flash-attn (it's only imported by the energy/flow/diffusion/calm heads, and even then, under `if is_flash_attn_2_available()`).
 
@@ -197,9 +197,9 @@ ImportError: cannot import name 'BUFSIZE' from 'numpy'
 
 `numpy.BUFSIZE` was removed in NumPy 2.0, and `deepspeed==0.10.0` depends on it. At the same time, HF-`accelerate` imports deepspeed **only if it's installed** (`is_deepspeed_available()` = "package is present"). Deepspeed is needed for distributed training on GPUs - we don't have it and cannot have it. So the cleanest solution is simply to uninstall it:
 
-bash
+```bash
 uv pip uninstall deepspeed
-
+```
 
 (Downgrading NumPy is risky: pandas/pyarrow wheels in the environment are compiled for NumPy 2.x, risking ABI incompatibility.)
 
@@ -229,7 +229,7 @@ The process's RSS after the fix stayed at ~6.6 GB - stable.
 
 All changes were consolidated into a reproducible launcher (important: run **as a module** `-m train.train_autoencoder` from the repository root, otherwise `import models` won't resolve):
 
-bash
+```bash
 .venv/bin/python -m train.train_autoencoder \
     --train_file ./data/jobs_requirements.json \
     --validation_file ./data/jobs_requirements.json \
@@ -245,7 +245,7 @@ bash
     --do_train --do_eval \
     --save_safetensors False \
     --logging_steps 10 --report_to none
-
+```
 
 Small details you can also stumble upon:
 - The `--validation_file` argument does not accept the `.jsonl` extension (only csv/json/txt) - we created a `.json` symlink.
@@ -270,7 +270,7 @@ Training: **220 steps, 5 epochs, 22 minutes on CPU.** Loss decreased monotonical
 
 The main test for an autoencoder is to run a phrase `text → encoder → latent → decoder → text` and compare. We do this deterministically: in `eval()`, taking the **`mean` of the latent** directly (bypassing VAE sampling), and preparing the input as during training (add EOS, pad to a multiple of K):
 
-python
+```python
 ids = tok(text)["input_ids"] + [tok.eos_token_id]
 while len(ids) % P: ids.append(pad_id)
 x = torch.tensor(ids).view(1, -1).reshape(-1, P)   # patches (L/4, 4)
@@ -278,7 +278,7 @@ latent = model.encoder(input_ids=x)
 mean, _ = torch.chunk(latent, 2, dim=-1)           # take mean
 logits = model.decoder(latent_states=mean)
 pred = logits.argmax(-1).reshape(-1)               # reconstructed tokens
-
+```
 
 What we got:
 
