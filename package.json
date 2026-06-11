@@ -3,10 +3,16 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "validate": "bunx @typescript/native-preview --noEmit"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "marked": "^18.0.5"
   }
 }
