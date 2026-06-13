@@ -170,7 +170,7 @@ export async function publishAll(options: {
         try {
           await publishTelegram({
             message: ruText,
-            imagePath: hasImage ? postImage : undefined,
+            imagePath: (mode === "regular" || !hasImage) ? undefined : postImage,
             chatId: ruChatId,
             botToken
           });
@@ -183,7 +183,7 @@ export async function publishAll(options: {
         try {
           await publishTelegram({
             message: enText,
-            imagePath: hasImage ? postImage : undefined,
+            imagePath: (mode === "regular" || !hasImage) ? undefined : postImage,
             chatId: enChatId,
             botToken
           });
