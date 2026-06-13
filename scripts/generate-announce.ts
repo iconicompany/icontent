@@ -110,7 +110,7 @@ export function extractCleanBody(filePath: string): string {
 
 async function main() {
   const args = Bun.argv.slice(2);
-  let mode: "viral" | "regular" = "viral";
+  let mode: "viral" | "regular" = "regular";
   let file = "";
   let outputFile = "";
 
@@ -157,9 +157,9 @@ async function main() {
   const finalOutput = outputFile || file.replace(fileExt, ".txt");
 
   const isRussian = file.includes("content/ru/");
-  const siteBaseUrl = process.env.SITE_BASE_URL || "https://iconicompany.com";
+  const siteBaseUrl = process.env.SITE_BASE_URL;
   const lang = isRussian ? "ru" : "en";
-  const postUrl = `${siteBaseUrl}/${lang}/blog/${base}`;
+  const postUrl = siteBaseUrl ? `${siteBaseUrl}/${lang}/blog/${base}` : "";
 
   console.log(`Generating AI post (Mode: ${mode}) for: ${file}...`);
   try {
@@ -169,7 +169,7 @@ async function main() {
     // For regular mode, we don't necessarily append the post link unless needed, 
     // but we can append it at the bottom to remain helpful, or write just the text.
     // Let's write the text with link for viral, and clean text for regular.
-    const finalText = mode === "viral" ? `${cleaned}\n\n👉 ${postUrl}\n` : cleaned;
+    const finalText = (mode === "viral" && siteBaseUrl) ? `${cleaned}\n\n👉 ${postUrl}\n` : cleaned;
     writeFileSync(finalOutput, finalText, "utf-8");
     console.log(`Generated ${finalOutput}`);
   } catch (err: any) {

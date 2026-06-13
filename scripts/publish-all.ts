@@ -14,7 +14,7 @@ import { marked } from "marked";
 
 
 // Env configuration
-const SITE_BASE_URL = process.env.SITE_BASE_URL || "https://iconicompany.com";
+const SITE_BASE_URL = process.env.SITE_BASE_URL;
 
 function usage() {
   console.log("Usage: bun scripts/publish-all.ts --post <path-to-md-file> [--mode viral|regular] [--edit] [--draft] [--exclude <channels>]");
@@ -37,54 +37,17 @@ async function editFileInteractive(filePath: string) {
   });
 }
 
-async function main() {
-  const args = Bun.argv.slice(2);
-  let postFile = "";
-  let mode: "viral" | "regular" = "viral";
-  let edit = false;
-  let draft = false;
-  let excludeList: string[] = [];
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === undefined) continue;
-    if (arg === "--post" && i + 1 < args.length) {
-      postFile = args[i + 1]!;
-      i++;
-    } else if (arg === "--mode" && i + 1 < args.length) {
-      const parsedMode = args[i + 1];
-      if (parsedMode !== undefined) {
-        mode = (parsedMode === "announce" || parsedMode === "viral") ? "viral" : "regular";
-      }
-      i++;
-    } else if (arg === "--announce" || arg === "--viral") {
-      mode = "viral";
-    } else if (arg === "--regular") {
-      mode = "regular";
-    } else if (arg === "--edit") {
-      edit = true;
-    } else if (arg === "--draft") {
-      draft = true;
-    } else if (arg === "--exclude" && i + 1 < args.length) {
-      const parsedExclude = args[i + 1];
-      if (parsedExclude !== undefined) {
-        excludeList = parsedExclude.toLowerCase().split(",").map(c => c.trim());
-      }
-      i++;
-    } else {
-      console.error(`Unknown parameter: ${arg}`);
-      usage();
-    }
-  }
-
-  if (!postFile) {
-    console.error("Error: --post is required.");
-    usage();
-  }
+export async function publishAll(options: {
+  postFile: string;
+  mode?: "viral" | "regular";
+  edit?: boolean;
+  draft?: boolean;
+  excludeList?: string[];
+}): Promise<void> {
+  const { postFile, mode = "regular", edit = false, draft = false, excludeList = [] } = options;
 
   if (!existsSync(postFile)) {
-    console.error(`Error: Post file not found at '${postFile}'`);
-    process.exit(1);
+    throw new Error(`Post file not found at '${postFile}'`);
   }
 
   // Detect paths and slug
@@ -134,8 +97,8 @@ async function main() {
       const rawRu = await generateAnnouncement(readFileSync(ruFile, "utf-8"), true, mode);
       ruText = cleanSymbols(rawRu, true);
       // Append URL for viral mode
-      const postUrl = `${SITE_BASE_URL}/ru/blog/${slug}`;
-      const finalText = mode === "viral" ? `${ruText}\n\n👉 ${postUrl}\n` : ruText;
+      const postUrl = SITE_BASE_URL ? `${SITE_BASE_URL}/ru/blog/${slug}` : "";
+      const finalText = (mode === "viral" && SITE_BASE_URL) ? `${ruText}\n\n👉 ${postUrl}\n` : ruText;
       writeFileSync(ruAnnounceFile, finalText, "utf-8");
       console.log(`Saved Russian announcement to: ${ruAnnounceFile}`);
       ruText = finalText;
@@ -154,8 +117,8 @@ async function main() {
       const rawEn = await generateAnnouncement(readFileSync(enFile, "utf-8"), false, mode);
       enText = cleanSymbols(rawEn, true);
       // Append URL for viral mode
-      const postUrl = `${SITE_BASE_URL}/en/blog/${slug}`;
-      const finalText = mode === "viral" ? `${enText}\n\n👉 ${postUrl}\n` : enText;
+      const postUrl = SITE_BASE_URL ? `${SITE_BASE_URL}/en/blog/${slug}` : "";
+      const finalText = (mode === "viral" && SITE_BASE_URL) ? `${enText}\n\n👉 ${postUrl}\n` : enText;
       writeFileSync(enAnnounceFile, finalText, "utf-8");
       console.log(`Saved English announcement to: ${enAnnounceFile}`);
       enText = finalText;
@@ -238,7 +201,7 @@ async function main() {
 
     if (token && author && ruFile) {
       console.log("Publishing announcement to LinkedIn...");
-      const articleUrl = `${SITE_BASE_URL}/ru/blog/${slug}`;
+      const articleUrl = SITE_BASE_URL ? `${SITE_BASE_URL}/ru/blog/${slug}` : undefined;
       try {
         await publishLinkedIn({
           text: ruText,
@@ -246,7 +209,7 @@ async function main() {
           author,
           image: hasImage ? postImage : undefined,
           title: ruTitle,
-          articleUrl: mode === "viral" ? articleUrl : undefined,
+          articleUrl: (mode === "viral" && articleUrl) ? articleUrl : undefined,
           draft
         });
       } catch (err: any) {
@@ -320,13 +283,13 @@ async function main() {
     const mediumToken = process.env.MEDIUM_TOKEN;
     const mediumAuthorId = process.env.MEDIUM_AUTHOR_ID;
 
-    if (mediumToken && mediumAuthorId && ruText) {
+    if (mediumToken && mediumAuthorId && ruText && SITE_BASE_URL) {
       console.log("Publishing Russian article to Medium...");
       try {
         await publishMedium({
           title: ruTitle || "New Announcement",
           content: ruText,
-          canonicalUrl: `${SITE_BASE_URL}/ru/blog/${slug}`,
+          canonicalUrl: SITE_BASE_URL ? `${SITE_BASE_URL}/ru/blog/${slug}` : "",
           token: mediumToken,
           authorId: mediumAuthorId
         });
@@ -354,11 +317,11 @@ async function main() {
         const title = titleGroup !== undefined ? titleGroup.trim() : "Article";
 
         const htmlBody = await marked.parse(body);
-        const siteBase = SITE_BASE_URL.replace(/\/$/, "");
-        const originalUrl = `${siteBase}/ru/blog/${slug}`;
-        const enUrl = `${siteBase}/en/blog/${slug}`;
-        const originalLinkHtml = `<p><a href="${enUrl}">Read in English</a> | <a href="${originalUrl}">Read original in Russian</a></p>`;
-        const fullHtml = `${htmlBody}\n${originalLinkHtml}`;
+        const siteBase = SITE_BASE_URL ? SITE_BASE_URL.replace(/\/$/, "") : "";
+        const originalUrl = siteBase ? `${siteBase}/ru/blog/${slug}` : "";
+        const enUrl = siteBase ? `${siteBase}/en/blog/${slug}` : "";
+        const originalLinkHtml = (enUrl && originalUrl) ? `<p><a href="${enUrl}">Read in English</a> | <a href="${originalUrl}">Read original in Russian</a></p>` : "";
+        const fullHtml = originalLinkHtml ? `${htmlBody}\n${originalLinkHtml}` : htmlBody;
         const nodes = htmlToNodes(fullHtml);
 
         const url = await publishTelegraph({
@@ -376,7 +339,63 @@ async function main() {
   console.log("\n🚀 All done!");
 }
 
-main().catch((err) => {
-  console.error("Fatal Error:", err);
-  process.exit(1);
-});
+async function main() {
+  const args = Bun.argv.slice(2);
+  let postFile = "";
+  let mode: "viral" | "regular" = "regular";
+  let edit = false;
+  let draft = false;
+  let excludeList: string[] = [];
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === undefined) continue;
+    if (arg === "--post" && i + 1 < args.length) {
+      postFile = args[i + 1]!;
+      i++;
+    } else if (arg === "--mode" && i + 1 < args.length) {
+      const parsedMode = args[i + 1];
+      if (parsedMode !== undefined) {
+        mode = (parsedMode === "announce" || parsedMode === "viral") ? "viral" : "regular";
+      }
+      i++;
+    } else if (arg === "--announce" || arg === "--viral") {
+      mode = "viral";
+    } else if (arg === "--regular") {
+      mode = "regular";
+    } else if (arg === "--edit") {
+      edit = true;
+    } else if (arg === "--draft") {
+      draft = true;
+    } else if (arg === "--exclude" && i + 1 < args.length) {
+      const parsedExclude = args[i + 1];
+      if (parsedExclude !== undefined) {
+        excludeList = parsedExclude.toLowerCase().split(",").map(c => c.trim());
+      }
+      i++;
+    } else {
+      console.error(`Unknown parameter: ${arg}`);
+      usage();
+    }
+  }
+
+  if (!postFile) {
+    console.error("Error: --post is required.");
+    usage();
+  }
+
+  await publishAll({
+    postFile,
+    mode,
+    edit,
+    draft,
+    excludeList
+  });
+}
+
+if (import.meta.main) {
+  main().catch((err) => {
+    console.error("Fatal Error:", err);
+    process.exit(1);
+  });
+}

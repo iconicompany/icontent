@@ -15,50 +15,23 @@ function usage() {
   process.exit(1);
 }
 
-async function main() {
-  const args = Bun.argv.slice(2);
-  let overrideTitle = "";
-  let overrideSlug = "";
-  let overrideDate = "";
-  let inputFile = "";
-  let imagePath = "";
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === undefined) continue;
-    if (arg === "--title" && i + 1 < args.length) {
-      overrideTitle = args[i + 1]!;
-      i++;
-    } else if ((arg === "--slug" || arg === "-s") && i + 1 < args.length) {
-      overrideSlug = args[i + 1]!;
-      i++;
-    } else if (arg === "--date" && i + 1 < args.length) {
-      overrideDate = args[i + 1]!;
-      i++;
-    } else if ((arg === "--post" || arg === "-p") && i + 1 < args.length) {
-      inputFile = args[i + 1]!;
-      i++;
-    } else if ((arg === "--image" || arg === "-i") && i + 1 < args.length) {
-      imagePath = args[i + 1]!;
-      i++;
-    } else if (!arg.startsWith("-")) {
-      if (!inputFile) {
-        inputFile = arg;
-      } else {
-        console.error(`Unknown parameter: ${arg}`);
-        usage();
-      }
-    } else {
-      console.error(`Unknown parameter: ${arg}`);
-      usage();
-    }
-  }
+export async function addPost(options: {
+  title?: string;
+  slug?: string;
+  date?: string;
+  postFile?: string;
+  imagePath?: string;
+}): Promise<string> {
+  const overrideTitle = options.title || "";
+  const overrideSlug = options.slug || "";
+  const overrideDate = options.date || "";
+  const inputFile = options.postFile || "";
+  const imagePath = options.imagePath || "";
 
   let rawContent = "";
   if (inputFile) {
     if (!existsSync(inputFile)) {
-      console.error(`Error: Input file not found at '${inputFile}'`);
-      process.exit(1);
+      throw new Error(`Input file not found at '${inputFile}'`);
     }
     rawContent = readFileSync(inputFile, "utf-8");
   } else {
@@ -66,14 +39,12 @@ async function main() {
     if (!process.stdin.isTTY) {
       rawContent = await Bun.stdin.text();
     } else {
-      console.error("Error: No input file provided and no content via stdin.");
-      usage();
+      throw new Error("No input file provided and no content via stdin.");
     }
   }
 
   if (!rawContent.trim()) {
-    console.error("Error: No content provided.");
-    process.exit(1);
+    throw new Error("No content provided.");
   }
 
   // Load rules from AGENTS.md
@@ -127,15 +98,13 @@ Output ONLY the JSON object with fields: title, description, tags (array), slug,
   });
 
   if (!response.ok) {
-    console.error(`LLM API Error: ${response.status} - ${await response.text()}`);
-    process.exit(1);
+    throw new Error(`LLM API Error: ${response.status} - ${await response.text()}`);
   }
 
   const json: any = await response.json();
   const metadataText = json.choices?.[0]?.message?.content;
   if (!metadataText) {
-    console.error("Error: LLM returned empty response");
-    process.exit(1);
+    throw new Error("LLM returned empty response");
   }
 
   const metadata = JSON.parse(metadataText);
@@ -143,7 +112,7 @@ Output ONLY the JSON object with fields: title, description, tags (array), slug,
   let desc = metadata.description;
   const tagsArray = metadata.tags || [];
   let slug = overrideSlug || metadata.slug;
-  let date = overrideDate || metadata.date || today;
+  let date = overrideDate || today;
   const formattedContent = metadata.content;
 
   let finalFilename = `${BLOG_DIR}/${slug}.md`;
@@ -204,9 +173,60 @@ ${readAlso}
   await $`bun scripts/translate-post.ts "${finalFilename}"`;
 
   console.log(`✅ Done! Post created at ${finalFilename}`);
+  return finalFilename;
 }
 
-main().catch((err) => {
-  console.error("Fatal Error:", err);
-  process.exit(1);
-});
+async function main() {
+  const args = Bun.argv.slice(2);
+  let overrideTitle = "";
+  let overrideSlug = "";
+  let overrideDate = "";
+  let inputFile = "";
+  let imagePath = "";
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === undefined) continue;
+    if (arg === "--title" && i + 1 < args.length) {
+      overrideTitle = args[i + 1]!;
+      i++;
+    } else if ((arg === "--slug" || arg === "-s") && i + 1 < args.length) {
+      overrideSlug = args[i + 1]!;
+      i++;
+    } else if (arg === "--date" && i + 1 < args.length) {
+      overrideDate = args[i + 1]!;
+      i++;
+    } else if ((arg === "--post" || arg === "-p") && i + 1 < args.length) {
+      inputFile = args[i + 1]!;
+      i++;
+    } else if ((arg === "--image" || arg === "-i") && i + 1 < args.length) {
+      imagePath = args[i + 1]!;
+      i++;
+    } else if (!arg.startsWith("-")) {
+      if (!inputFile) {
+        inputFile = arg;
+      } else {
+        console.error(`Unknown parameter: ${arg}`);
+        usage();
+      }
+    } else {
+      console.error(`Unknown parameter: ${arg}`);
+      usage();
+    }
+  }
+
+  await addPost({
+    title: overrideTitle,
+    slug: overrideSlug,
+    date: overrideDate,
+    postFile: inputFile,
+    imagePath
+  });
+}
+
+if (import.meta.main) {
+  main().catch((err) => {
+    console.error("Fatal Error:", err);
+    process.exit(1);
+  });
+}
