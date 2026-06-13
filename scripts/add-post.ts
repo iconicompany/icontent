@@ -93,7 +93,8 @@ Output ONLY the JSON object with fields: title, description, tags (array), slug,
     body: JSON.stringify({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      max_tokens: 8192
     })
   });
 
@@ -107,7 +108,18 @@ Output ONLY the JSON object with fields: title, description, tags (array), slug,
     throw new Error("LLM returned empty response");
   }
 
-  const metadata = JSON.parse(metadataText);
+  let cleanMetadataText = metadataText.trim();
+  if (cleanMetadataText.startsWith("```json")) {
+    cleanMetadataText = cleanMetadataText.substring(7);
+  } else if (cleanMetadataText.startsWith("```")) {
+    cleanMetadataText = cleanMetadataText.substring(3);
+  }
+  if (cleanMetadataText.endsWith("```")) {
+    cleanMetadataText = cleanMetadataText.substring(0, cleanMetadataText.length - 3);
+  }
+  cleanMetadataText = cleanMetadataText.trim();
+
+  const metadata = JSON.parse(cleanMetadataText);
   let title = overrideTitle || metadata.title;
   let desc = metadata.description;
   const tagsArray = metadata.tags || [];
