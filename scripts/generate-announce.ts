@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
-import { basename, extname } from "path";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { basename, extname, dirname, join } from "path";
 
 // Prompt Library
 interface PromptSet {
@@ -154,7 +154,11 @@ async function main() {
 
   const fileExt = extname(file);
   const base = basename(file, fileExt);
-  const finalOutput = outputFile || file.replace(fileExt, ".txt");
+  
+  // If the file is inside content/ru/blog, dirname(file) is content/ru/blog
+  // We go up one directory and append "announces"
+  const defaultOutputDir = join(dirname(dirname(file)), "announces");
+  const finalOutput = outputFile || join(defaultOutputDir, `${base}.txt`);
 
   const isRussian = file.includes("content/ru/");
   const siteBaseUrl = process.env.SITE_BASE_URL;
@@ -170,6 +174,7 @@ async function main() {
     // but we can append it at the bottom to remain helpful, or write just the text.
     // Let's write the text with link for viral, and clean text for regular.
     const finalText = (mode === "viral" && siteBaseUrl) ? `${cleaned}\n\n👉 ${postUrl}\n` : cleaned;
+    mkdirSync(dirname(finalOutput), { recursive: true });
     writeFileSync(finalOutput, finalText, "utf-8");
     console.log(`Generated ${finalOutput}`);
   } catch (err: any) {

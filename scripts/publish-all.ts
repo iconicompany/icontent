@@ -75,12 +75,12 @@ export async function publishAll(options: {
     ruFile = postFile;
   }
 
-  const ruAnnounceDir = join(dirname(dirname(ruFile)), "announce");
+  const ruAnnounceDir = join(dirname(dirname(ruFile)), "announces");
   const ruAnnounceFile = join(ruAnnounceDir, `${slug}.txt`);
   let enAnnounceFile = "";
 
   if (enFile) {
-    const enAnnounceDir = join(dirname(dirname(enFile)), "announce");
+    const enAnnounceDir = join(dirname(dirname(enFile)), "announces");
     enAnnounceFile = join(enAnnounceDir, `${slug}.txt`);
   }
 
