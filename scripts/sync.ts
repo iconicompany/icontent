@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { basename, extname } from "path";
 import { addPost } from "./add-post";
 import { publishAll } from "./publish-all";
+import { triggerContentSync } from "./content-sync";
 
 async function main() {
   console.log("=== Starting content sync pipeline ===");
@@ -87,35 +88,9 @@ async function main() {
     console.log("\nSkipping git commit/push (not in GitHub Actions).");
   }
 
-  // 4. Trigger Content Sync
-  const syncUrl = process.env.SYNC_URL;
-  const syncToken = process.env.SYNC_TOKEN;
-  if (syncUrl) {
-    console.log(`\n--- Triggering Content Sync to ${syncUrl} ---`);
-    try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (syncToken) {
-        headers["Authorization"] = `Bearer ${syncToken}`;
-      }
-      const response = await fetch(syncUrl, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({}),
-      });
-      const resText = await response.text();
-      if (response.ok) {
-        console.log("Content Sync triggered successfully.");
-      } else {
-        console.warn(`Content Sync failed: ${response.status} - ${resText}`);
-      }
-    } catch (e: any) {
-      console.error("Failed to trigger Content Sync:", e.message);
-    }
-  } else {
-    console.log("\nSkipping Content Sync (SYNC_URL not configured).");
-  }
+  // 4. Trigger Content Sync (вынесено в scripts/content-sync.ts)
+  console.log("");
+  await triggerContentSync();
 
   // 5. Run publishAll function to handle announcements and publications
   if (exclude.toLowerCase().includes("all")) {
