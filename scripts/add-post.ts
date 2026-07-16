@@ -92,7 +92,7 @@ export async function addPost(options: {
     }
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0] ?? "";
 
   let title = "";
   let desc = "";
