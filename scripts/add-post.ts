@@ -4,6 +4,37 @@ import { $ } from "bun";
 
 
 
+// Извлекает готовый frontmatter (title/date/description/tags/language) + тело.
+// Если всё на месте — пост НЕ нужно прогонять через LLM (иначе длинный пост
+// не влезает в JSON-ответ модели и рвётся на "Unterminated string").
+function parseCompleteFrontmatter(text: string): {
+  title: string; date: string; description: string; tags: string[]; language: string; slug?: string; body: string;
+} | null {
+  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m || !m[1]) return null;
+  const fmText = m[1];
+  const body = (m[2] || "").trim();
+  const field = (key: string): string => {
+    const r = fmText.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
+    return r && r[1] ? r[1].trim() : "";
+  };
+  const unquote = (s: string) => s.replace(/^["']|["']$/g, "");
+  const title = unquote(field("title"));
+  const date = unquote(field("date"));
+  const description = unquote(field("description"));
+  const language = unquote(field("language"));
+  const slug = unquote(field("slug"));
+  let tags: string[] = [];
+  const tagsRaw = field("tags");
+  if (tagsRaw) {
+    try { tags = JSON.parse(tagsRaw.replace(/'/g, '"')); } catch { tags = []; }
+  }
+  if (title && date && description && Array.isArray(tags) && tags.length) {
+    return { title, date, description, tags, language, slug, body };
+  }
+  return null;
+}
+
 const API_BASE = process.env.OPENAI_API_BASE || "https://api.openai.com/v1";
 const API_KEY = process.env.OPENAI_API_KEY;
 const MODEL = process.env.OPENAI_MODEL || "gemini-2.5-flash-lite";
@@ -63,8 +94,26 @@ export async function addPost(options: {
 
   const today = new Date().toISOString().split("T")[0];
 
-  console.log("--- Processing content with LLM (Formatting + Metadata) ---");
-  const prompt = `You are a professional blog post editor. Your task is to take a raw draft or an existing post and format/fix it while following specific style guidelines.
+  let title = "";
+  let desc = "";
+  let tagsArray: string[] = [];
+  let slug = "";
+  let date = "";
+  let formattedContent = "";
+
+  const preFm = parseCompleteFrontmatter(rawContent);
+  if (preFm) {
+    // Пост уже оформлен (есть полный frontmatter) — берём как есть, LLM не трогаем.
+    console.log("--- Post already has complete frontmatter; skipping LLM formatting ---");
+    title = overrideTitle || preFm.title;
+    desc = preFm.description;
+    tagsArray = preFm.tags;
+    slug = overrideSlug || (inputFile ? basename(inputFile).replace(/\.mdx?$/i, "") : (preFm.slug || ""));
+    date = overrideDate || preFm.date || today;
+    formattedContent = preFm.body;
+  } else {
+    console.log("--- Processing content with LLM (Formatting + Metadata) ---");
+    const prompt = `You are a professional blog post editor. Your task is to take a raw draft or an existing post and format/fix it while following specific style guidelines.
 
 RULES FROM AGENTS.MD:
 ${rules}
@@ -84,48 +133,49 @@ ${rawContent}
 
 Output ONLY the JSON object with fields: title, description, tags (array), slug, date (YYYY-MM-DD), content (markdown body).`;
 
-  const response = await fetch(`${API_BASE}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${API_KEY}`
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      max_tokens: 8192
-    })
-  });
+    const response = await fetch(`${API_BASE}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        max_tokens: 8192
+      })
+    });
 
-  if (!response.ok) {
-    throw new Error(`LLM API Error: ${response.status} - ${await response.text()}`);
-  }
+    if (!response.ok) {
+      throw new Error(`LLM API Error: ${response.status} - ${await response.text()}`);
+    }
 
-  const json: any = await response.json();
-  const metadataText = json.choices?.[0]?.message?.content;
-  if (!metadataText) {
-    throw new Error("LLM returned empty response");
-  }
+    const json: any = await response.json();
+    const metadataText = json.choices?.[0]?.message?.content;
+    if (!metadataText) {
+      throw new Error("LLM returned empty response");
+    }
 
-  let cleanMetadataText = metadataText.trim();
-  if (cleanMetadataText.startsWith("```json")) {
-    cleanMetadataText = cleanMetadataText.substring(7);
-  } else if (cleanMetadataText.startsWith("```")) {
-    cleanMetadataText = cleanMetadataText.substring(3);
-  }
-  if (cleanMetadataText.endsWith("```")) {
-    cleanMetadataText = cleanMetadataText.substring(0, cleanMetadataText.length - 3);
-  }
-  cleanMetadataText = cleanMetadataText.trim();
+    let cleanMetadataText = metadataText.trim();
+    if (cleanMetadataText.startsWith("```json")) {
+      cleanMetadataText = cleanMetadataText.substring(7);
+    } else if (cleanMetadataText.startsWith("```")) {
+      cleanMetadataText = cleanMetadataText.substring(3);
+    }
+    if (cleanMetadataText.endsWith("```")) {
+      cleanMetadataText = cleanMetadataText.substring(0, cleanMetadataText.length - 3);
+    }
+    cleanMetadataText = cleanMetadataText.trim();
 
-  const metadata = JSON.parse(cleanMetadataText);
-  let title = overrideTitle || metadata.title;
-  let desc = metadata.description;
-  const tagsArray = metadata.tags || [];
-  let slug = overrideSlug || metadata.slug;
-  let date = overrideDate || today;
-  const formattedContent = metadata.content;
+    const metadata = JSON.parse(cleanMetadataText);
+    title = overrideTitle || metadata.title;
+    desc = metadata.description;
+    tagsArray = metadata.tags || [];
+    slug = overrideSlug || metadata.slug;
+    date = overrideDate || today;
+    formattedContent = metadata.content;
+  }
 
   let finalFilename = `${BLOG_DIR}/${slug}.md`;
   let oldFile = "";
