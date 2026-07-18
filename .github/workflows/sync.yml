@@ -1,11 +1,15 @@
 name: Trigger Sync
 
+# ОТКЛЮЧЕНО: авто-синк на push временно выключен.
+# Теперь работаем локально: коммитим → пушим → `bun scripts/content-sync.ts` → анонс в канал.
+# Чтобы вернуть автозапуск — раскомментируйте блок push ниже.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'content/**'
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'content/**'
 
 jobs:
   sync:
