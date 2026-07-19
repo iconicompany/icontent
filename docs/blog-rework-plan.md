@@ -23,12 +23,13 @@
 | # | Пост | Реворк | Анонс | Охват LinkedIn | Заметки |
 |---|---|---|---|---|---|
 | 1 | outstaffing-model-is-broken | 2026-07-18 ✅ | 2026-07-18 ✅ | _замер 2026-07-19_ | пилот; 4 слоя ставки + «стоимость денег», картинка Gemini. LinkedIn: ugcPost 7484199454087155712; TG t.me/iconicompany/674 |
+| 2 | how-to-find-ai-native-developer | 2026-07-19 ✅ | 2026-07-19 ✅ | _замер 2026-07-20_ | claimed vs demonstrated + механика платформы; карусель сохранена, анонс с Gemini v1. LinkedIn: ugcPost 7484455648366354432; TG t.me/iconicompany/675 |
 
 ## Бэклог REWORK
 
 ### Tier A — первыми (важная тема × много воды × есть чем добить экспертизу)
 1. ~~outstaffing-model-is-broken~~ ✅ (пилот)
-2. **how-to-find-ai-native-developer** — core бизнеса; эмодзи-списки → реальные сигналы найма + цифры пайплайна (487 заявок, fit≥85%, voice-screening)
+2. ~~how-to-find-ai-native-developer~~ ✅ — claimed vs demonstrated + реальная механика платформы (2026-07-19)
 3. **new-sdlc-agentic-development** — раскрыть свой `/create-a-project`: скаффолд, агенты, код
 4. **ai-is-consulting-and-why-your-hiring-is-broken** — сильный тезис (forward-deployed/Palantir) + нужны кейсы/цифры
 5. **ai-native-development-2026-jira-resumes-breaking** — реальные инструменты названы, но не раскрыты (макс. апсайд)
