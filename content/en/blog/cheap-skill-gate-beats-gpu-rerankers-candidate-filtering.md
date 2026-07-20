@@ -67,7 +67,7 @@ The result is counterintuitive: **heavy text rerankers on GPU (0.56–0.60) lost
 
 What else didn't work:
 
-- **CrossEncoder fine-tuning didn't converge.** The loss flatlined and held-out quality actually degraded. The cause turned out to be the data, not the learning rate: we have positives (created offers) but no *labeled negatives* — "this candidate does not fit the vacancy." The mined negatives are topically close candidates, some of which are actually fine matches that simply weren't processed. The model got a contradictory signal. Key lesson: **a broken training run is not a valid negative result** — you cannot present it as "CrossEncoder loses."
+- **CrossEncoder fine-tuning didn't converge — and that was our mistake.** The loss flatlined and held-out quality degraded. We do have negatives — a whole database of them: nearly half of all candidates have `matched < 0.70`. But we trained on the "verified" subset, which is almost all positives, and mined fake negatives instead of using the real ones. The model learned from a contradictory signal from mined "negatives," some of which are actually fine matches. That's not a verdict on the method — it's a botched setup on our side. By then off-the-shelf rerankers had already lost to skills on the full labeled set, so we didn't push a properly-trained CrossEncoder on the real negatives — an open question. The lesson landed on us: **a broken training run is not a valid negative result** — especially when the data was there and we picked the wrong slice.
 - **The feature combo (logistic regression) didn't beat MaxSim** — on a fair held-out split by vacancy both landed at ~0.69, and the weights showed MaxSim dominates while the other features add almost nothing.
 
 ### Watch out: selection bias
