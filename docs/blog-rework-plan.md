@@ -24,6 +24,7 @@
 |---|---|---|---|---|---|
 | 1 | outstaffing-model-is-broken | 2026-07-18 ✅ | 2026-07-18 ✅ | _замер 2026-07-19_ | пилот; 4 слоя ставки + «стоимость денег», картинка Gemini. LinkedIn: ugcPost 7484199454087155712; TG t.me/iconicompany/674 |
 | 2 | how-to-find-ai-native-developer | 2026-07-19 ✅ | 2026-07-19 ✅ | _замер 2026-07-20_ | claimed vs demonstrated + механика платформы; карусель сохранена, анонс с Gemini v1. LinkedIn: ugcPost 7484455648366354432; TG t.me/iconicompany/675 |
+| 3 | model-knows-if-code-will-work-before-writing (НОВЫЙ, RU+EN) | 2026-07-20 ✅ | 2026-07-20 ✅ | _замер 2026-07-21_ | новый deep-tech по arxiv 2607.05188 (latent programming horizon), наш угол про латентную оценку; обложка Gemini v2. LinkedIn: ugcPost 7484816588509065216; TG t.me/iconicompany/676 |
 
 ## Бэклог REWORK
 
